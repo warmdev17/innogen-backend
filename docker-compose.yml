@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: innogen
+      POSTGRES_PASSWORD: maiphuongdangyeu
+      POSTGRES_DB: innogendb
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
