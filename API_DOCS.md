@@ -4,7 +4,9 @@ Base URL: `http://localhost:8080/api`
 
 ## Authentication (`/auth`)
 
-### 1. Request OTP
+### 1. Request OTP (Temporarily Disabled)
+
+**[DEPRECATED]** This endpoint is currently disabled.
 
 Sends a 6-digit OTP to the user's email for registration.
 
@@ -18,12 +20,9 @@ Sends a 6-digit OTP to the user's email for registration.
   }
   ```
 
-- **Responses**:
-  - `200 OK`: `{"message": "OTP sent"}`
-  - `400 Bad Request`: `{"error": "valid email is required"}` or `{"error": "user exists"}`
-  - `500 Server Error`: `{"error": "failed to store OTP"}`
+### 2. Register User (Temporarily Disabled)
 
-### 2. Register User
+**[DEPRECATED]** This endpoint is currently disabled. Users cannot self-register at this time. Use the existing admin account or seed data.
 
 Verifies the OTP and creates a new user with the `student` role.
 
@@ -38,11 +37,6 @@ Verifies the OTP and creates a new user with the `student` role.
     "otp": "123456"
   }
   ```
-
-- **Responses**:
-  - `201 Created`: `{"message": "registered"}`
-  - `400 Bad Request`: `{"error": "invalid or expired OTP"}`
-  - `500 Server Error`: `{"error": "user exists"}` or `{"error": "hash failed"}`
 
 ### 3. Login
 
@@ -205,5 +199,47 @@ Submits code for a specific problem and queues it for the judge worker.
     }
     ```
 
-  - `400 Bad Request`: Validation errors.
   - `500 Server Error`: `{"error": "Failed to queue submission"}`
+
+---
+
+## Piston Proxy (`/piston`)
+
+These endpoints act as a direct reverse-proxy to the internal Piston execution engine. All Piston APIs can be called by prefixing them with `/piston`.
+
+### 1. Execute Code
+
+Directly executes source code using the Piston engine engine without creating a submission record in the database.
+
+- **URL**: `/piston/api/v2/execute`
+- **Method**: `POST`
+- **Body**:
+
+  ```json
+  {
+    "language": "python",
+    "version": "3.10.0",
+    "files": [
+      {
+        "content": "print('Hello Innogen!')"
+      }
+    ]
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: Piston execution result.
+
+    ```json
+    {
+      "language": "python",
+      "version": "3.10.0",
+      "run": {
+        "stdout": "Hello Innogen!\n",
+        "stderr": "",
+        "code": 0,
+        "signal": null,
+        "output": "Hello Innogen!\n"
+      }
+    }
+    ```
