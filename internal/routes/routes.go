@@ -2,6 +2,10 @@
 package routes
 
 import (
+	"net/http/httputil"
+	"net/url"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/warmdev17/innogen-backend/internal/controllers"
 	"github.com/warmdev17/innogen-backend/internal/middleware"
@@ -12,10 +16,22 @@ func RegisterRoutes(r *gin.Engine) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	pistonURL := os.Getenv("PISTON_URL")
+	if pistonURL == "" {
+		pistonURL = "http://localhost:2000"
+	}
+	remote, _ := url.Parse(pistonURL)
+	pistonProxy := httputil.NewSingleHostReverseProxy(remote)
+	r.Any("/piston/*path", func(c *gin.Context) {
+		c.Request.URL.Path = c.Param("path")
+		pistonProxy.ServeHTTP(c.Writer, c.Request)
+	})
+
 	api := r.Group("/api")
 	{
-		api.POST("/auth/send-otp", controllers.SendOTP)
-		api.POST("/auth/register", controllers.Register)
+		// Tạm bỏ đăng ký với OTP
+		// api.POST("/auth/send-otp", controllers.SendOTP)
+		// api.POST("/auth/register", controllers.Register)
 		api.POST("/auth/login", controllers.Login)
 
 		protected := api.Group("/me")

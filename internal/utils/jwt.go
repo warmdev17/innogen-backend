@@ -21,7 +21,7 @@ func GenerateToken(userID uint, role string) (string, error) {
 }
 
 func ParseToken(tokenStr string) (*jwt.Token, error) {
-	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+	return jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
 		return jwtSecret, nil
 	})
 }

@@ -5,25 +5,32 @@ Base URL: `http://localhost:8080/api`
 ## Authentication (`/auth`)
 
 ### 1. Request OTP
+
 Sends a 6-digit OTP to the user's email for registration.
+
 - **URL**: `/auth/send-otp`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "email": "user@example.com"
   }
   ```
+
 - **Responses**:
   - `200 OK`: `{"message": "OTP sent"}`
   - `400 Bad Request`: `{"error": "valid email is required"}` or `{"error": "user exists"}`
   - `500 Server Error`: `{"error": "failed to store OTP"}`
 
 ### 2. Register User
+
 Verifies the OTP and creates a new user with the `student` role.
+
 - **URL**: `/auth/register`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "email": "user@example.com",
@@ -31,22 +38,27 @@ Verifies the OTP and creates a new user with the `student` role.
     "otp": "123456"
   }
   ```
+
 - **Responses**:
   - `201 Created`: `{"message": "registered"}`
   - `400 Bad Request`: `{"error": "invalid or expired OTP"}`
   - `500 Server Error`: `{"error": "user exists"}` or `{"error": "hash failed"}`
 
 ### 3. Login
+
 Authenticates the user and returns a JWT token.
+
 - **URL**: `/auth/login`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "email": "user@example.com",
     "password": "securepassword123"
   }
   ```
+
 - **Responses**:
   - `200 OK`: `{"token": "eyJhbG..."}`
   - `401 Unauthorized`: `{"error": "invalid credentials"}`
@@ -54,13 +66,16 @@ Authenticates the user and returns a JWT token.
 ---
 
 ## User Information (`/me`)
-*Requires `Authorization: Bearer <token>` header.*
+
+_Requires `Authorization: Bearer <token>` header._
 
 ### 1. Get Current User
+
 - **URL**: `/me`
 - **Method**: `GET`
 - **Responses**:
   - `200 OK`:
+
     ```json
     {
       "user_id": 1,
@@ -71,13 +86,16 @@ Authenticates the user and returns a JWT token.
 ---
 
 ## Problems (`/problems`)
-*Requires `Authorization: Bearer <token>` header.*
+
+_Requires `Authorization: Bearer <token>` header._
 
 ### 1. Get All Problems
+
 - **URL**: `/problems`
 - **Method**: `GET`
 - **Responses**:
   - `200 OK`:
+
     ```json
     [
       {
@@ -94,6 +112,7 @@ Authenticates the user and returns a JWT token.
     ```
 
 ### 2. Get Problem by ID
+
 - **URL**: `/problems/:id`
 - **Method**: `GET`
 - **Responses**:
@@ -101,9 +120,11 @@ Authenticates the user and returns a JWT token.
   - `404 Not Found`: `{"error": "Problem not found"}`
 
 ### 3. Create Problem (Admin/Teacher Only)
+
 - **URL**: `/problems`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "title": "Two Sum",
@@ -113,6 +134,7 @@ Authenticates the user and returns a JWT token.
     "memory_limit_mb": 256
   }
   ```
+
 - **Responses**:
   - `201 Created`: Returns the newly created problem object.
   - `400 Bad Request`: Validation errors.
@@ -121,12 +143,15 @@ Authenticates the user and returns a JWT token.
 ---
 
 ## Testcases (`/testcases`)
-*Requires `Authorization: Bearer <token>` header with `admin` or `teacher` role.*
+
+_Requires `Authorization: Bearer <token>` header with `admin` or `teacher` role._
 
 ### 1. Create Testcase
+
 - **URL**: `/testcases`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "ProblemID": 1,
@@ -134,6 +159,7 @@ Authenticates the user and returns a JWT token.
     "Output": "[0,1]"
   }
   ```
+
 - **Responses**:
   - `201 Created`: Returns the newly created testcase object.
   - `400 Bad Request`: Validation errors.
@@ -142,13 +168,17 @@ Authenticates the user and returns a JWT token.
 ---
 
 ## Submissions (`/submit`)
-*Requires `Authorization: Bearer <token>` header.*
+
+_Requires `Authorization: Bearer <token>` header._
 
 ### 1. Submit Code
+
 Submits code for a specific problem and queues it for the judge worker.
+
 - **URL**: `/submit`
 - **Method**: `POST`
 - **Body**:
+
   ```json
   {
     "problem_id": 1,
@@ -156,8 +186,10 @@ Submits code for a specific problem and queues it for the judge worker.
     "language": "python"
   }
   ```
+
 - **Responses**:
   - `201 Created`:
+
     ```json
     {
       "message": "Submission queued",
@@ -172,5 +204,6 @@ Submits code for a specific problem and queues it for the judge worker.
       }
     }
     ```
+
   - `400 Bad Request`: Validation errors.
   - `500 Server Error`: `{"error": "Failed to queue submission"}`

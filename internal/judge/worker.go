@@ -2,18 +2,13 @@
 package judge
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/warmdev17/innogen-backend/internal/database"
 	"github.com/warmdev17/innogen-backend/internal/models"
+	"github.com/warmdev17/innogen-backend/internal/services"
 )
 
 func StartWorker() {
@@ -50,11 +45,22 @@ func processSubmission(subID uint) {
 
 	database.DB.Model(&sub).Update("status", "processing")
 
-	output, err := runCodeInDocker(sub.Code, sub.Language)
+	resp, err := services.RunCode(sub.Code, sub.Language)
 	status := "accepted"
+	output := ""
+
 	if err != nil {
-		status = "runtime_error"
+		status = "system_error"
 		output = err.Error()
+	} else if resp.Run.Code != 0 {
+		status = "runtime_error"
+		if resp.Run.Stderr != "" {
+			output = resp.Run.Stderr
+		} else {
+			output = resp.Run.Stdout
+		}
+	} else {
+		output = resp.Run.Stdout
 	}
 
 	database.DB.Model(&sub).Updates(map[string]any{
@@ -62,73 +68,4 @@ func processSubmission(subID uint) {
 	})
 
 	log.Printf("Done submission %d: %s\nOutput: %s", subID, status, output)
-}
-
-func runCodeInDocker(code string, lang string) (string, error) {
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := cli.Close(); err != nil {
-			log.Println("Error closing logs:", err)
-		}
-	}()
-
-	imageName := "python:3.10-alpine"
-	cmd := []string{"python", "-c", code}
-
-	if lang == "go" {
-		return "", fmt.Errorf("go runner not implemented yet, try python")
-	}
-
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: imageName,
-		Cmd:   cmd,
-		Tty:   false,
-	}, nil, nil, nil, "")
-	if err != nil {
-		return "", err
-	}
-
-	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		return "", err
-	}
-
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
-	select {
-	case err := <-errCh:
-		if err != nil {
-			return "", err
-		}
-	case <-statusCh:
-	}
-
-	out, err := cli.ContainerLogs(ctx, resp.ID, container.LogsOptions{ShowStdout: true, ShowStderr: true})
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := out.Close(); err != nil {
-			log.Println("Error closing logs:", err)
-		}
-	}()
-
-	var outBuf, errBuf bytes.Buffer
-
-	_, err = stdcopy.StdCopy(&outBuf, &errBuf, out)
-	if err != nil {
-		return "", err
-	}
-
-	finalOutput := outBuf.String()
-	if errBuf.Len() > 0 {
-		finalOutput += "\n--- Stderr ---\n" + errBuf.String()
-	}
-	// ----------------
-
-	_ = cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{Force: true})
-
-	return finalOutput, nil
 }

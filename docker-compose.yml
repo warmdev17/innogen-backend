@@ -1,14 +1,50 @@
 services:
+  backend:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MODE=production
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - PISTON_URL=http://172.17.0.1:2000 # 172.17.0.1 la IP mac dinh cua host tu Docker container tren Linux
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - innogen-network
+
   postgres:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: innogen
       POSTGRES_PASSWORD: maiphuongdangyeu
       POSTGRES_DB: innogendb
     ports:
       - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - innogen-network
 
   redis:
     image: redis:7
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - innogen-network
+
+networks:
+  innogen-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
