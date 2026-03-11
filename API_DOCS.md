@@ -243,3 +243,73 @@ Directly executes source code using the Piston engine engine without creating a 
       }
     }
     ```
+
+---
+
+## Nginx Reverse Proxy Configuration (Production)
+
+If you are running the service on a VPS and want to publicize the APIs with an SSL certificate using Nginx, you can reference the configuration below.
+
+### 1. Piston Engine (`excode.innogenlab.com`)
+
+This points to the internal Piston engine running on port `2000`.
+
+```nginx
+server {
+    listen 80;
+    server_name excode.innogenlab.com www.excode.innogenlab.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name excode.innogenlab.com www.excode.innogenlab.com;
+
+    ssl_certificate /etc/nginx/ssl/innogenlab.com.pem;
+    ssl_certificate_key /etc/nginx/ssl/innogenlab.com.key;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:2000;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### 2. Backend API (`api.innogenlab.com`)
+
+This points to the Main Go Backend running via Docker on port `8080`.
+
+```nginx
+server {
+    listen 80;
+    server_name api.innogenlab.com www.api.innogenlab.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name api.innogenlab.com www.api.innogenlab.com;
+
+    ssl_certificate /etc/nginx/ssl/innogenlab.com.pem;
+    ssl_certificate_key /etc/nginx/ssl/innogenlab.com.key;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```

@@ -8,7 +8,7 @@ services:
       - MODE=production
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
-      - PISTON_URL=http://172.17.0.1:2000 # 172.17.0.1 la IP mac dinh cua host tu Docker container tren Linux
+      - PISTON_URL=https://excode.innogenlab.com
     env_file:
       - .env
     depends_on:
