@@ -1,6 +1,7 @@
 # Innogen Backend API Documentation
 
-Base URL: `http://localhost:8080/api`
+Base URL (Production): `https://code.innogenlab.com/api`
+*(Local dev: `http://localhost:8080/api`)*
 
 ## Authentication (`/auth`)
 
@@ -282,20 +283,20 @@ server {
 }
 ```
 
-### 2. Backend API (`api.innogenlab.com`)
+### 2. Frontend & Backend API (`code.innogenlab.com`)
 
-This points to the Main Go Backend running via Docker on port `8080`.
+This configuration serves the Frontend application on the root path `/` and proxies the Main Go Backend running via Docker to the `/api`, `/piston`, and `/health` paths.
 
 ```nginx
 server {
     listen 80;
-    server_name api.innogenlab.com www.api.innogenlab.com;
+    server_name code.innogenlab.com www.code.innogenlab.com;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name api.innogenlab.com www.api.innogenlab.com;
+    server_name code.innogenlab.com www.code.innogenlab.com;
 
     ssl_certificate /etc/nginx/ssl/innogenlab.com.pem;
     ssl_certificate_key /etc/nginx/ssl/innogenlab.com.key;
@@ -303,13 +304,40 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
+    # 1. Frontend Application
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        # Example: Proxy to a Next.js/React frontend running on port 3000
+        # proxy_pass http://127.0.0.1:3000;
+        
+        # Or serve static files built by React/Vue
+        # root /var/www/innogen-frontend;
+        # index index.html;
+        # try_files $uri $uri/ /index.html;
+    }
+
+    # 2. Backend API
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080/api/;
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 3. Piston Execution Reverse Proxy (Called by Frontend)
+    location /piston/ {
+        proxy_pass http://127.0.0.1:8080/piston/;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 4. Backend Health Check
+    location /health {
+        proxy_pass http://127.0.0.1:8080/health;
     }
 }
 ```
