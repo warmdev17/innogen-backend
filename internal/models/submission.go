@@ -1,17 +1,23 @@
 // Package models
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Submission struct {
-	ID        uint `gorm:"primaryKey"`
-	UserID    uint
-	ProblemID uint
-
-	Code      string `gorm:"type:text"`
-	Language  string // cpp, go, py
-	Status    string // pending, accepted, wrong_answer, runtime_error
-	RuntimeMs int
-
-	CreatedAt time.Time
+	ID             uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	Language       string    `gorm:"type:varchar(50);not null"`
+	Code           string    `gorm:"type:text;not null"`
+	Status         string    `gorm:"type:varchar(50);not null"`
+	RuntimeMs      int
+	MemoryKb       int
+	CreatedAt      time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	ErrorMessage   string    `gorm:"type:text"`
+	PassCount      int
+	TotalTestcases int
+	UserID         uint
+	ProblemID      uint
 }

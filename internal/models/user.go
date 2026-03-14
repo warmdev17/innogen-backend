@@ -3,15 +3,15 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Email     string `gorm:"unique"`
-	Password  string
-	Role      string `gorm:"default:'student'"` // student, teacher, admin (tui)
-	FullName  string
-	CreatedAt time.Time
+	ID        uint      `gorm:"primaryKey"`
+	Email     string    `gorm:"type:varchar(255);unique;not null"`
+	Password  string    `gorm:"type:text"`
+	Username  string    `gorm:"type:varchar(255)"`
+	FullName  string    `gorm:"type:varchar(255)"`
+	Role      string    `gorm:"default:'student'"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }

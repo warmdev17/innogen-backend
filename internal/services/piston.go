@@ -11,12 +11,17 @@ import (
 )
 
 func RunCode(code string, language string) (*models.ExecuteResponse, error) {
+	return RunCodeWithInput(code, language, "")
+}
+
+func RunCodeWithInput(code string, language string, stdin string) (*models.ExecuteResponse, error) {
 	reqBody := models.ExecuteRequest{
 		Language: language,
 		Version:  "*",
 		Files: []models.File{
 			{Content: code},
 		},
+		Stdin: stdin,
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -30,7 +35,7 @@ func RunCode(code string, language string) (*models.ExecuteResponse, error) {
 	}
 
 	resp, err := http.Post(
-		pistonURL+"/api/v2/piston/execute",
+		pistonURL+"/api/v2/execute",
 		"application/json",
 		bytes.NewBuffer(jsonData),
 	)

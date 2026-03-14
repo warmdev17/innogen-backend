@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/warmdev17/innogen-backend/internal/database"
 	"github.com/warmdev17/innogen-backend/internal/models"
 )
@@ -25,6 +26,7 @@ func Submit(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
 	sub := models.Submission{
+		ID:        uuid.New(),
 		UserID:    userID,
 		ProblemID: req.ProblemID,
 		Code:      req.Code,

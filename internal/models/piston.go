@@ -9,6 +9,7 @@ type ExecuteRequest struct {
 	Language string `json:"language"`
 	Version  string `json:"version"`
 	Files    []File `json:"files"`
+	Stdin    string `json:"stdin"`
 }
 
 type ExecuteResponse struct {

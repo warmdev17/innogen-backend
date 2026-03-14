@@ -95,13 +95,17 @@ _Requires `Authorization: Bearer <token>` header._
     [
       {
         "ID": 1,
+        "Slug": "two-sum",
+        "AcceptanceRate": 0.0,
         "Title": "Two Sum",
-        "Description": "Given an array of integers...",
         "Difficulty": "easy",
+        "ProblemMd": "Given an array of integers...",
         "TimeLimitMs": 1000,
-        "MemoryLimitMB": 256,
+        "MemoryLimitKb": 256000,
+        "IsPublished": false,
         "CreatedBy": 1,
-        "CreatedAt": "2026-02-21T10:00:00Z"
+        "CreatedAt": "2026-02-21T10:00:00Z",
+        "UpdatedAt": "2026-02-21T10:00:00Z"
       }
     ]
     ```
@@ -123,10 +127,11 @@ _Requires `Authorization: Bearer <token>` header._
   ```json
   {
     "title": "Two Sum",
+    "slug": "two-sum",
     "description": "Given an array of integers return indices of the two numbers such that they add up to target.",
-    "difficulty": "easy",
+    "difficulty": "Easy",
     "time_limit_ms": 1000,
-    "memory_limit_mb": 256
+    "memory_limit_kb": 256000
   }
   ```
 
@@ -150,8 +155,10 @@ _Requires `Authorization: Bearer <token>` header with `admin` or `teacher` role.
   ```json
   {
     "ProblemID": 1,
-    "Input": "[2,7,11,15]\n9",
-    "Output": "[0,1]"
+    "InputData": "[2,7,11,15]\n9",
+    "ExpectedOutput": "[0,1]",
+    "IsHidden": true,
+    "Role": "hidden"
   }
   ```
 
@@ -189,13 +196,18 @@ Submits code for a specific problem and queues it for the judge worker.
     {
       "message": "Submission queued",
       "submission": {
-        "ID": 1,
+        "ID": "123e4567-e89b-12d3-a456-426614174000",
         "UserID": 1,
         "ProblemID": 1,
         "Code": "def twoSum(nums, target):\n    pass",
         "Language": "python",
-        "Status": "pending"
-        // ... (other internal submission fields)
+        "Status": "pending",
+        "RuntimeMs": 0,
+        "MemoryKb": 0,
+        "ErrorMessage": "",
+        "PassCount": 0,
+        "TotalTestcases": 0,
+        "CreatedAt": "2026-02-21T10:00:00Z"
       }
     }
     ```

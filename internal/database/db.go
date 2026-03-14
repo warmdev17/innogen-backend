@@ -27,7 +27,18 @@ func Connect() {
 	}
 
 	DB = db
-	if err := DB.AutoMigrate(&models.User{}, &models.Problem{}, &models.Testcase{}, &models.Submission{}); err != nil {
+	if err := DB.AutoMigrate(
+		&models.User{},
+		&models.Problem{},
+		&models.Testcase{},
+		&models.Submission{},
+		&models.Subject{},
+		&models.SubjectSession{},
+		&models.Lesson{},
+		&models.LessonProblem{},
+		&models.Tag{},
+		&models.ProblemTag{},
+	); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
 	log.Println("Database connected")

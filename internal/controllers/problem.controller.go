@@ -10,11 +10,12 @@ import (
 )
 
 type CreateProblemRequest struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	Difficulty  string `json:"difficulty"`
-	TimeLimitMs int    `json:"time_limit_ms"`
-	MemoryLimit int    `json:"memory_limit_mb"`
+	Title         string  `json:"title" binding:"required"`
+	Slug          string  `json:"slug" binding:"required"`
+	Description   string  `json:"description"`
+	Difficulty    string  `json:"difficulty"`
+	TimeLimitMs   int     `json:"time_limit_ms"`
+	MemoryLimitKb int     `json:"memory_limit_kb"`
 }
 
 func CreateProblem(c *gin.Context) {
@@ -28,10 +29,11 @@ func CreateProblem(c *gin.Context) {
 
 	problem := models.Problem{
 		Title:         req.Title,
-		Description:   req.Description,
+		Slug:          req.Slug,
+		ProblemMd:     req.Description,
 		Difficulty:    req.Difficulty,
 		TimeLimitMs:   req.TimeLimitMs,
-		MemoryLimitMB: req.MemoryLimit,
+		MemoryLimitKb: req.MemoryLimitKb,
 		CreatedBy:     userID,
 	}
 
