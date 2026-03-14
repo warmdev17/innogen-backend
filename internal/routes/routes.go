@@ -12,10 +12,6 @@ import (
 )
 
 func RegisterRoutes(r *gin.Engine) {
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
-
 	pistonURL := os.Getenv("PISTON_URL")
 	if pistonURL == "" {
 		pistonURL = "http://localhost:2000"
@@ -33,6 +29,9 @@ func RegisterRoutes(r *gin.Engine) {
 		// api.POST("/auth/send-otp", controllers.SendOTP)
 		// api.POST("/auth/register", controllers.Register)
 		api.POST("/auth/login", controllers.Login)
+		api.GET("/health", func(c *gin.Context) {
+			c.JSON(200, gin.H{"status": "ok"})
+		})
 
 		protected := api.Group("/me")
 		protected.Use(middleware.JWTAuth())
