@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innogen Piston Judge Tester</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; background-color: #f5f5f5;}
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace;}
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;}
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result-box { background: #2d2d2d; color: #00ff00; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; min-height: 100px; max-height: 400px; overflow-y: auto;}
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 14px; margin-bottom: 10px;}
+        .status-Accepted { background: #28a745; color: white; }
+        .status-Wrong { background: #dc3545; color: white; }
+        .status-Runtime { background: #ffc107; color: black; }
+        .status-System { background: #dc3545; color: white; }
+        .status-pending { background: #17a2b8; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Innogen Code Submission Tester</h1>
+
+    <div class="card">
+        <h3>1. Configuration</h3>
+        <label>API Base URL:</label>
+        <input type="text" id="apiUrl" value="https://code.maiphuongtrunghieu.site/api">
+        
+        <label>Admin JWT Token:</label>
+        <input type="text" id="token" placeholder="Paste your JWT token here...">
+    </div>
+
+    <div class="card">
+        <h3>2. Submit Code (Problem ID: 1 - Two Sum)</h3>
+        
+        <label>Language:</label>
+        <select id="language">
+            <option value="python">Python 3</option>
+            <option value="go">Go</option>
+            <option value="cpp">C++</option>
+            <option value="javascript">JavaScript</option>
+        </select>
+
+        <label>Source Code:</label>
+        <textarea id="code" rows="10">import sys
+# Python code for Two Sum reading from stdin
+def solve():
+    input_data = sys.stdin.read().split()
+    if len(input_data) >= 5:
+        print("0\n1")
+    else:
+        print("1\n2")
+
+if __name__ == "__main__":
+    solve()</textarea>
+        
+        <button id="submitBtn" onclick="submitCode()">Submit Code to Piston</button>
+    </div>
+
+    <div class="card" id="result-section" style="display:none;">
+        <h3>3. Realtime Judge Result</h3>
+        <div><strong>Submission ID:</strong> <span id="sub-id">...</span></div>
+        <div><strong>Status:</strong> <span id="sub-status" class="status-badge status-pending">Pending</span></div>
+        <div><strong>Passed Testcases:</strong> <span id="sub-pass">0 / 0</span></div>
+        <div><strong>Runtime / Memory:</strong> <span id="sub-perf">0 ms / 0 KB</span></div>
+        
+        <label style="margin-top: 15px;">Console/Error Output:</label>
+        <div id="result-box">Waiting for execution...</div>
+    </div>
+
+    <script>
+        let pollInterval;
+
+        async function submitCode() {
+            const btn = document.getElementById('submitBtn');
+            const token = document.getElementById('token').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const language = document.getElementById('language').value;
+            const code = document.getElementById('code').value;
+
+            if (!token) {
+                alert("Please enter your JWT Token first!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('sub-id').innerText = "Queuing...";
+            document.getElementById('sub-status').className = "status-badge status-pending";
+            document.getElementById('sub-status').innerText = "Pending";
+            document.getElementById('result-box').innerText = "Waiting for judge worker to pick up the job...";
+            clearInterval(pollInterval);
+
+            try {
+                const response = await fetch(`${apiUrl}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        problem_id: 1,
+                        language: language,
+                        code: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to submit");
+                }
+
+                const subId = data.submission.ID;
+                document.getElementById('sub-id').innerText = subId;
+                
+                // Start polling every 1.5 seconds
+                pollInterval = setInterval(() => pollStatus(apiUrl, token, subId), 1500);
+
+            } catch (error) {
+                document.getElementById('result-box').innerText = "Error: " + error.message;
+                btn.disabled = false;
+                btn.innerText = "Submit Code to Piston";
+            }
+        }
+
+        async function pollStatus(apiUrl, token, subId) {
+            try {
+                const response = await fetch(`${apiUrl}/submit/${subId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                
+                // Update UI visually
+                const statusSpan = document.getElementById('sub-status');
+                statusSpan.innerText = data.Status;
+                
+                if (data.Status.includes("Accepted")) statusSpan.className = "status-badge status-Accepted";
+                else if (data.Status.includes("Wrong")) statusSpan.className = "status-badge status-Wrong";
+                else if (data.Status.includes("Error")) statusSpan.className = "status-badge status-Runtime";
+                else statusSpan.className = "status-badge status-pending";
+
+                document.getElementById('sub-pass').innerText = `${data.PassCount} / ${data.TotalTestcases}`;
+                document.getElementById('sub-perf').innerText = `${data.RuntimeMs} ms / ${data.MemoryKb} KB`;
+
+                if (data.ErrorMessage) {
+                    document.getElementById('result-box').innerText = data.ErrorMessage;
+                } else if (data.Status !== "pending" && data.Status !== "Processing") {
+                    document.getElementById('result-box').innerText = "Execution completed successfully.\nAll tests passed!";
+                } else {
+                    document.getElementById('result-box').innerText = `Running tests... passed ${data.PassCount} so far.`;
+                }
+
+                // Stop polling if done
+                if (data.Status !== "pending" && data.Status !== "Processing") {
+                    clearInterval(pollInterval);
+                    const btn = document.getElementById('submitBtn');
+                    btn.disabled = false;
+                    btn.innerText = "Submit Code to Piston";
+                }
+
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
