@@ -214,6 +214,17 @@ Submits code for a specific problem and queues it for the judge worker.
 
   - `500 Server Error`: `{"error": "Failed to queue submission"}`
 
+### 2. Get Submission Status
+
+Fetches the details and current execution status of a submission. This is used by the frontend to poll for Piston judge results after submitting.
+
+- **URL**: `/submit/:id`
+- **Method**: `GET`
+- **Responses**:
+  - `200 OK`: Returns the submission object containing updated `Status`, `PassCount`, `ErrorMessage`, and `RuntimeMs`.
+  - `403 Forbidden`: `{"error": "You do not have permission to view this submission"}`
+  - `404 Not Found`: `{"error": "Submission not found"}`
+
 ---
 
 ## Piston Proxy (`/piston`)

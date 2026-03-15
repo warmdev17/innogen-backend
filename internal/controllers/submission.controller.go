@@ -23,7 +23,8 @@ func Submit(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetUint("user_id")
+	userIDFloat := c.GetFloat64("user_id")
+	userID := uint(userIDFloat)
 
 	sub := models.Submission{
 		ID:        uuid.New(),
@@ -53,4 +54,27 @@ func Submit(c *gin.Context) {
 		"message":    "Submission queued",
 		"submission": sub,
 	})
+}
+
+func GetSubmission(c *gin.Context) {
+	id := c.Param("id")
+	var sub models.Submission
+
+	if err := database.DB.Where("id = ?", id).First(&sub).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Submission not found"})
+		return
+	}
+
+	// Prevent users from seeing other people's code unless they are admin/teacher. 
+	// For now, simpler implementation: just check if user_id matches
+	userIDFloat := c.GetFloat64("user_id")
+	userID := uint(userIDFloat)
+	role := c.GetString("role")
+	
+	if sub.UserID != userID && role != "admin" && role != "teacher" {
+		c.JSON(403, gin.H{"error": "You do not have permission to view this submission"})
+		return
+	}
+
+	c.JSON(200, sub)
 }

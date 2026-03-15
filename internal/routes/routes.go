@@ -63,5 +63,6 @@ func RegisterRoutes(r *gin.Engine) {
 	submit.Use(middleware.JWTAuth())
 	{
 		submit.POST("", controllers.Submit)
+		submit.GET("/:id", controllers.GetSubmission)
 	}
 }
