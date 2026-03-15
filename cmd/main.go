@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/warmdev17/innogen-backend/internal/database"
@@ -22,6 +23,13 @@ func main() {
 	go judge.StartWorker()
 
 	r := gin.Default()
+	
+	// Add CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	r.Use(cors.New(config))
+
 	routes.RegisterRoutes(r)
 
 	port := os.Getenv("PORT")
