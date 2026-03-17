@@ -11,7 +11,7 @@ import (
 )
 
 type SubmitRequest struct {
-	ProblemID uint   `json:"problem_id"`
+	ProblemID uint   `json:"problemId"`
 	Code      string `json:"code"`
 	Language  string `json:"language"`
 }

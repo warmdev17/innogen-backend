@@ -3,6 +3,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -16,12 +17,19 @@ var Ctx = context.Background()
 func ConnectRedis() {
 	redisHost := os.Getenv("REDIS_HOST")
 	if redisHost == "" {
-		redisHost = "localhost"
+		log.Fatal("REDIS_HOST is not set")
 	}
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		log.Fatal("REDIS_PORT is not set")
+	}
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	addr := fmt.Sprintf("%s:%s", redisHost, redisPort)
 
 	Rdb = *redis.NewClient(&redis.Options{
-		Addr:     redisHost + ":6379",
-		Password: "",
+		Addr:     addr,
+		Password: redisPassword,
 		DB:       0,
 	})
 

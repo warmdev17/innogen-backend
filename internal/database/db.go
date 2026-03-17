@@ -15,11 +15,16 @@ var DB *gorm.DB
 
 func Connect() {
 	host := os.Getenv("POSTGRES_HOST")
-	if host == "" {
-		host = "localhost"
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+	portStr := os.Getenv("POSTGRES_PORT")
+
+	if host == "" || user == "" || password == "" || dbname == "" || portStr == "" {
+		log.Fatal("One or more database environment variables are missing (POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT)")
 	}
 
-	dsn := fmt.Sprintf("host=%s user=innogen password=maiphuongdangyeu dbname=innogendb port=5432 sslmode=disable", host)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, portStr)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

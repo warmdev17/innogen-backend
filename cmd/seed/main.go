@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/warmdev17/innogen-backend/internal/database"
@@ -17,7 +18,10 @@ func main() {
 	database.Connect()
 
 	email := "admin@admin.com"
-	password := "admin123"
+	password := os.Getenv("ADMIN_PASSWORD")
+	if password == "" {
+		log.Fatal("ADMIN_PASSWORD environment variable is not set")
+	}
 
 	// Check if user exists
 	var existing models.User

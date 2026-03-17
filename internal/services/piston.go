@@ -4,6 +4,7 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -31,7 +32,7 @@ func RunCodeWithInput(code string, language string, stdin string) (*models.Execu
 
 	pistonURL := os.Getenv("PISTON_URL")
 	if pistonURL == "" {
-		pistonURL = "http://localhost:2000"
+		return nil, fmt.Errorf("PISTON_URL environment variable is not set")
 	}
 
 	resp, err := http.Post(
