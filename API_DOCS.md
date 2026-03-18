@@ -1,366 +1,360 @@
 # Innogen Backend API Documentation
 
-Base URL (Production): `https://code.innogenlab.com/api`
-*(Local dev: `http://localhost:8080/api`)*
+## Overview
 
-## Authentication (`/auth`)
+The Innogen Backend API is a RESTful API for a competitive programming platform. It provides endpoints for user authentication, problem management, code submission, and execution.
 
-### 1. Request OTP (Temporarily Disabled)
+## Base URL
 
-**[DEPRECATED]** This endpoint is currently disabled.
+```
+http://localhost:8081/api
+```
 
-Sends a 6-digit OTP to the user's email for registration.
+## Authentication
 
-- **URL**: `/auth/send-otp`
-- **Method**: `POST`
-- **Body**:
+The API uses JWT (JSON Web Tokens) for authentication. To access protected endpoints, include the token in the Authorization header:
 
-  ```json
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+## Endpoints
+
+### 1. Authentication
+
+#### POST /auth/login
+
+Authenticate a user and receive a JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "error": "Invalid credentials"
+}
+```
+
+#### GET /me
+
+Get information about the currently authenticated user.
+
+**Headers:**
+- Authorization: Bearer <token>
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "username": "johndoe",
+  "fullName": "John Doe",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z"
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+### 2. Problems
+
+#### GET /problems
+
+Get a list of all available problems.
+
+**Success Response (200):**
+```json
+[
   {
-    "email": "user@example.com"
-  }
-  ```
-
-### 2. Register User (Temporarily Disabled)
-
-**[DEPRECATED]** This endpoint is currently disabled. Users cannot self-register at this time. Use the existing admin account or seed data.
-
-Verifies the OTP and creates a new user with the `student` role.
-
-- **URL**: `/auth/register`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "securepassword123",
-    "otp": "123456"
-  }
-  ```
-
-### 3. Login
-
-Authenticates the user and returns a JWT token.
-
-- **URL**: `/auth/login`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "securepassword123"
-  }
-  ```
-
-- **Responses**:
-  - `200 OK`: `{"token": "eyJhbG..."}`
-  - `401 Unauthorized`: `{"error": "invalid credentials"}`
-
----
-
-## User Information (`/me`)
-
-_Requires `Authorization: Bearer <token>` header._
-
-### 1. Get Current User
-
-- **URL**: `/me`
-- **Method**: `GET`
-- **Responses**:
-  - `200 OK`:
-
-    ```json
-    {
-      "user_id": 1,
-      "role": "student"
-    }
-    ```
-
----
-
-## Problems (`/problems`)
-
-_Requires `Authorization: Bearer <token>` header._
-
-### 1. Get All Problems
-
-- **URL**: `/problems`
-- **Method**: `GET`
-- **Responses**:
-  - `200 OK`:
-
-    ```json
-    [
-      {
-        "ID": 1,
-        "Slug": "two-sum",
-        "AcceptanceRate": 0.0,
-        "Title": "Two Sum",
-        "Difficulty": "easy",
-        "ProblemMd": "Given an array of integers...",
-        "TimeLimitMs": 1000,
-        "MemoryLimitKb": 256000,
-        "IsPublished": false,
-        "CreatedBy": 1,
-        "CreatedAt": "2026-02-21T10:00:00Z",
-        "UpdatedAt": "2026-02-21T10:00:00Z"
-      }
-    ]
-    ```
-
-### 2. Get Problem by ID
-
-- **URL**: `/problems/:id`
-- **Method**: `GET`
-- **Responses**:
-  - `200 OK`: Single problem object (same format as above)
-  - `404 Not Found`: `{"error": "Problem not found"}`
-
-### 3. Create Problem (Admin/Teacher Only)
-
-- **URL**: `/problems`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
-    "title": "Two Sum",
+    "id": 1,
     "slug": "two-sum",
-    "description": "Given an array of integers return indices of the two numbers such that they add up to target.",
-    "difficulty": "Easy",
-    "time_limit_ms": 1000,
-    "memory_limit_kb": 256000
+    "title": "Two Sum",
+    "difficulty": "easy",
+    "problemMd": "## Problem Description\n...",
+    "timeLimitMs": 1000,
+    "memoryLimitKb": 256,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
   }
-  ```
+]
+```
 
-- **Responses**:
-  - `201 Created`: Returns the newly created problem object.
-  - `400 Bad Request`: Validation errors.
-  - `403 Forbidden`: Insufficient role permissions.
+#### POST /admin/problems
 
----
+Create a new problem (admin/teacher only).
 
-## Testcases (`/testcases`)
+**Headers:**
+- Authorization: Bearer <token>
 
-_Requires `Authorization: Bearer <token>` header with `admin` or `teacher` role._
-
-### 1. Create Testcase
-
-- **URL**: `/testcases`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
-    "ProblemID": 1,
-    "InputData": "[2,7,11,15]\n9",
-    "ExpectedOutput": "[0,1]",
-    "IsHidden": true,
-    "Role": "hidden"
-  }
-  ```
-
-- **Responses**:
-  - `201 Created`: Returns the newly created testcase object.
-  - `400 Bad Request`: Validation errors.
-  - `403 Forbidden`: Insufficient role permissions.
-
----
-
-## Submissions (`/submit`)
-
-_Requires `Authorization: Bearer <token>` header._
-
-### 1. Submit Code
-
-Submits code for a specific problem and queues it for the judge worker.
-
-- **URL**: `/submit`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
-    "problem_id": 1,
-    "code": "def twoSum(nums, target):\n    pass",
-    "language": "python"
-  }
-  ```
-
-- **Responses**:
-  - `201 Created`:
-
-    ```json
+**Request Body:**
+```json
+{
+  "slug": "fibonacci",
+  "title": "Fibonacci Sequence",
+  "difficulty": "medium",
+  "problemMd": "## Problem Description\n...",
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 512,
+  "testcases": [
     {
-      "message": "Submission queued",
-      "submission": {
-        "ID": "123e4567-e89b-12d3-a456-426614174000",
-        "UserID": 1,
-        "ProblemID": 1,
-        "Code": "def twoSum(nums, target):\n    pass",
-        "Language": "python",
-        "Status": "pending",
-        "RuntimeMs": 0,
-        "MemoryKb": 0,
-        "ErrorMessage": "",
-        "PassCount": 0,
-        "TotalTestcases": 0,
-        "CreatedAt": "2026-02-21T10:00:00Z"
-      }
+      "input": "5",
+      "expectedOutput": "0\n1\n1\n2\n3\n"
     }
-    ```
+  ]
+}
+```
 
-  - `500 Server Error`: `{"error": "Failed to queue submission"}`
+**Success Response (201):**
+```json
+{
+  "id": 2,
+  "slug": "fibonacci",
+  "title": "Fibonacci Sequence",
+  "difficulty": "medium",
+  "problemMd": "## Problem Description\n...",
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 512,
+  "testcases": [...],
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z"
+}
+```
 
-### 2. Get Submission Status
+**Error Responses:**
+- 400: Invalid input
+- 403: Insufficient permissions
 
-Fetches the details and current execution status of a submission. This is used by the frontend to poll for Piston judge results after submitting.
+### 3. Submissions
 
-- **URL**: `/submit/:id`
-- **Method**: `GET`
-- **Responses**:
-  - `200 OK`: Returns the submission object containing updated `Status`, `PassCount`, `ErrorMessage`, and `RuntimeMs`.
-  - `403 Forbidden`: `{"error": "You do not have permission to view this submission"}`
-  - `404 Not Found`: `{"error": "Submission not found"}`
+#### POST /submit
 
----
+Submit code for judging against test cases.
 
-## Piston Proxy (`/piston`)
+**Headers:**
+- Authorization: Bearer <token>
 
-These endpoints act as a direct reverse-proxy to the internal Piston execution engine. All Piston APIs can be called by prefixing them with `/piston`.
+**Request Body:**
+```json
+{
+  "problemId": 1,
+  "language": "python",
+  "code": "def two_sum(nums, target):\n    # solution here\n    pass"
+}
+```
 
-### 1. Execute Code
-
-Directly executes source code using the Piston engine engine without creating a submission record in the database.
-
-- **URL**: `/piston/api/v2/execute`
-- **Method**: `POST`
-- **Body**:
-
-  ```json
-  {
+**Success Response (201):**
+```json
+{
+  "message": "Submission queued",
+  "submission": {
+    "id": "uuid-string",
+    "userId": 1,
+    "problemId": 1,
+    "code": "def two_sum(nums, target):\n    # solution here\n    pass",
     "language": "python",
-    "version": "3.10.0",
-    "files": [
-      {
-        "content": "print('Hello Innogen!')"
-      }
-    ]
+    "status": "pending",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
   }
-  ```
+}
+```
 
-- **Responses**:
-  - `200 OK`: Piston execution result.
+**Supported Languages:**
+- `python`
+- `javascript`
+- `go`
+- `cpp`
 
-    ```json
+#### GET /submit/{id}
+
+Get the status and results of a specific submission.
+
+**Headers:**
+- Authorization: Bearer <token>
+
+**Path Parameters:**
+- id: Submission UUID
+
+**Success Response (200):**
+```json
+{
+  "id": "uuid-string",
+  "userId": 1,
+  "problemId": 1,
+  "code": "def two_sum(nums, target):\n    # solution here\n    pass",
+  "language": "python",
+  "status": "accepted",
+  "testResults": [
     {
-      "language": "python",
-      "version": "3.10.0",
-      "run": {
-        "stdout": "Hello Innogen!\n",
-        "stderr": "",
-        "code": 0,
-        "signal": null,
-        "output": "Hello Innogen!\n"
-      }
+      "testNumber": 1,
+      "status": "passed",
+      "input": "2 7",
+      "expectedOutput": "0 1",
+      "actualOutput": "0 1",
+      "executionTime": 12.5
     }
-    ```
-
----
-
-## Nginx Reverse Proxy Configuration (Production)
-
-If you are running the service on a VPS and want to publicize the APIs with an SSL certificate using Nginx, you can reference the configuration below.
-
-### 1. Piston Engine (`excode.innogenlab.com`)
-
-This points to the internal Piston engine running on port `2000`.
-
-```nginx
-server {
-    listen 80;
-    server_name excode.innogenlab.com www.excode.innogenlab.com;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name excode.innogenlab.com www.excode.innogenlab.com;
-
-    ssl_certificate /etc/nginx/ssl/innogenlab.com.pem;
-    ssl_certificate_key /etc/nginx/ssl/innogenlab.com.key;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    location / {
-        proxy_pass http://127.0.0.1:2000;
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+  ],
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z"
 }
 ```
 
-### 2. Frontend & Backend API (`code.innogenlab.com`)
+**Status Values:**
+- `pending`: Waiting in queue
+- `running`: Currently being judged
+- `accepted`: All test cases passed
+- `wrong_answer`: Some test cases failed
+- `time_limit_exceeded`: Program exceeded time limit
+- `memory_limit_exceeded`: Program exceeded memory limit
+- `runtime_error`: Program crashed
+- `compilation_error`: Code failed to compile
 
-This configuration serves the Frontend application on the root path `/` and proxies the Main Go Backend running via Docker to the `/api`, `/piston`, and `/health` paths.
+**Error Responses:**
+- 403: Not authorized to view this submission
+- 404: Submission not found
 
-```nginx
-server {
-    listen 80;
-    server_name code.innogenlab.com www.code.innogenlab.com;
-    return 301 https://$host$request_uri;
-}
+### 4. Code Execution
 
-server {
-    listen 443 ssl;
-    server_name code.innogenlab.com www.code.innogenlab.com;
+#### POST /run
 
-    ssl_certificate /etc/nginx/ssl/innogenlab.com.pem;
-    ssl_certificate_key /etc/nginx/ssl/innogenlab.com.key;
+Execute code directly without test cases (useful for testing).
 
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
+**Headers:**
+- Authorization: Bearer <token>
 
-    # 1. Frontend Application
-    location / {
-        # Example: Proxy to a Next.js/React frontend running on port 3000
-        # proxy_pass http://127.0.0.1:3000;
-        
-        # Or serve static files built by React/Vue
-        # root /var/www/innogen-frontend;
-        # index index.html;
-        # try_files $uri $uri/ /index.html;
-    }
-
-    # 2. Backend API
-    location /api/ {
-        proxy_pass http://127.0.0.1:8080/api/;
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # 3. Piston Execution Reverse Proxy (Called by Frontend)
-    location /piston/ {
-        proxy_pass http://127.0.0.1:8080/piston/;
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # 4. Backend Health Check
-    location /health {
-        proxy_pass http://127.0.0.1:8080/health;
-    }
+**Request Body:**
+```json
+{
+  "language": "python",
+  "code": "print('Hello, World!')",
+  "input": ""
 }
 ```
+
+**Success Response (200):**
+```json
+{
+  "output": "Hello, World!\n",
+  "error": "",
+  "executionTime": 5.2,
+  "memoryUsed": 1024
+}
+```
+
+**Error Responses:**
+- 400: Invalid input
+- 500: Execution failed
+
+## Error Handling
+
+All endpoints return errors in the following format:
+
+```json
+{
+  "error": "Error message description"
+}
+```
+
+Common HTTP status codes:
+- `200`: Success
+- `201`: Created successfully
+- `400`: Bad Request (invalid input)
+- `401`: Unauthorized (invalid or missing token)
+- `403`: Forbidden (insufficient permissions)
+- `404`: Not Found
+- `500`: Internal Server Error
+
+## Rate Limiting
+
+The API may enforce rate limiting to prevent abuse. If you receive a 429 status code, you have exceeded the allowed number of requests.
+
+## Swagger Documentation
+
+Interactive API documentation is available at:
+- Swagger UI: `/swagger/index.html`
+- API Docs (local): `/docs/index.html`
+- JSON Spec: `/swagger/doc.json`
+- YAML Spec: `/swagger/doc.yaml`
+
+## Testing
+
+A test client is available at `/test-client.html` for interactive testing of all endpoints.
+
+## SDKs and Libraries
+
+### JavaScript/Node.js Example
+
+```javascript
+const API_BASE = 'http://localhost:8081/api';
+
+// Login
+const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+});
+const { token } = await loginResponse.json();
+
+// Get problems
+const problemsResponse = await fetch(`${API_BASE}/problems`);
+const problems = await problemsResponse.json();
+
+// Submit code
+const submitResponse = await fetch(`${API_BASE}/submit`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ problemId, language, code })
+});
+const submission = await submitResponse.json();
+```
+
+### Python Example
+
+```python
+import requests
+
+API_BASE = 'http://localhost:8081/api'
+
+# Login
+response = requests.post(f'{API_BASE}/auth/login', json={
+    'email': email,
+    'password': password
+})
+token = response.json()['token']
+
+# Get problems
+problems = requests.get(f'{API_BASE}/problems').json()
+
+# Submit code
+headers = {'Authorization': f'Bearer {token}'}
+submission = requests.post(f'{API_BASE}/submit', json={
+    'problemId': problem_id,
+    'language': language,
+    'code': code
+}, headers=headers).json()
+```
+
+## Support
+
+For issues and questions, please contact the development team or create an issue in the project repository.

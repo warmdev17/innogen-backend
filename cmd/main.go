@@ -1,3 +1,9 @@
+// @title Innogen Backend API
+// @version 1.0
+// @description API for competitive programming platform
+// @host code.innogenlab.com
+// @BasePath /api
+// @schemes https http
 package main
 
 import (
@@ -7,6 +13,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/warmdev17/innogen-backend/internal/database"
 	"github.com/warmdev17/innogen-backend/internal/judge"
 	"github.com/warmdev17/innogen-backend/internal/routes"
@@ -23,12 +31,15 @@ func main() {
 	go judge.StartWorker()
 
 	r := gin.Default()
-	
+
 	// Add CORS middleware
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
+
+	// Swagger documentation
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	routes.RegisterRoutes(r)
 

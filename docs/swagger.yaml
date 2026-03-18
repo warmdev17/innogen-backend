@@ -1,0 +1,493 @@
+basePath: /api
+definitions:
+  controllers.CreateProblemRequest:
+    properties:
+      difficulty:
+        type: string
+      memoryLimitKb:
+        type: integer
+      problemMd:
+        type: string
+      slug:
+        type: string
+      testcases:
+        items:
+          $ref: '#/definitions/controllers.TestcaseRequest'
+        type: array
+      timeLimitMs:
+        type: integer
+      title:
+        type: string
+    required:
+    - slug
+    - testcases
+    - title
+    type: object
+  controllers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  controllers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  controllers.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  controllers.MeResponse:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.ProblemDetailResponse:
+    properties:
+      acceptanceRate:
+        type: number
+      difficulty:
+        type: string
+      id:
+        type: integer
+      isPublished:
+        type: boolean
+      memoryLimitKb:
+        type: integer
+      problemMd:
+        type: string
+      slug:
+        type: string
+      timeLimitMs:
+        type: integer
+      title:
+        type: string
+    type: object
+  controllers.ProblemListResponse:
+    properties:
+      difficulty:
+        type: string
+      id:
+        type: integer
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
+  controllers.RunRequest:
+    properties:
+      code:
+        type: string
+      language:
+        type: string
+      problemId:
+        description: optional if just running bare code, but good for saving
+        type: integer
+      stdin:
+        type: string
+    required:
+    - code
+    - language
+    type: object
+  controllers.SubmitRequest:
+    properties:
+      code:
+        type: string
+      language:
+        type: string
+      problemId:
+        type: integer
+    type: object
+  controllers.TestcaseRequest:
+    properties:
+      expectedOutput:
+        type: string
+      inputData:
+        type: string
+      isHidden:
+        type: boolean
+    required:
+    - expectedOutput
+    - inputData
+    type: object
+host: code.innogenlab.com
+info:
+  contact: {}
+  description: API for competitive programming platform
+  title: Innogen Backend API
+  version: "1.0"
+paths:
+  /admin/problems:
+    post:
+      consumes:
+      - application/json
+      description: Create a new problem with test cases (admin/teacher only)
+      parameters:
+      - description: Problem details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateProblemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.ProblemDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new problem
+      tags:
+      - problems
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      - application/json
+      description: |-
+        Authenticates the user and returns a JWT token
+        Authenticate user with email and password
+      parameters:
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+          type: object
+      - description: User password
+        in: body
+        name: password
+        required: true
+        schema:
+          properties:
+            password:
+              type: string
+          type: object
+      - description: Login credentials
+        in: body
+        name: LoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Verifies the OTP and creates a new user with the student role (Currently
+        disabled)
+      parameters:
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+          type: object
+      - description: User password
+        in: body
+        name: password
+        required: true
+        schema:
+          properties:
+            password:
+              type: string
+          type: object
+      - description: 6-digit OTP
+        in: body
+        name: otp
+        required: true
+        schema:
+          properties:
+            otp:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/send-otp:
+    post:
+      consumes:
+      - application/json
+      description: Sends a 6-digit OTP to the user's email for registration (Currently
+        disabled)
+      parameters:
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Send OTP for registration
+      tags:
+      - auth
+  /me:
+    get:
+      consumes:
+      - application/json
+      - application/json
+      description: |-
+        Returns the current authenticated user's information
+        Get information about the authenticated user
+        Get information about the authenticated user
+      produces:
+      - application/json
+      - application/json
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+      - me
+      - me
+  /problems:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve list of all problems
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ProblemListResponse'
+            type: array
+      summary: Get all problems
+      tags:
+      - problems
+  /problems/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific problem by its ID
+      parameters:
+      - description: Problem ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ProblemDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get problem by ID
+      tags:
+      - problems
+  /run:
+    post:
+      consumes:
+      - application/json
+      description: Execute code without test cases and return the result
+      parameters:
+      - description: Code execution details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Run code directly
+      tags:
+      - run
+  /submit:
+    post:
+      consumes:
+      - application/json
+      description: Submit code for a problem to be judged against test cases
+      parameters:
+      - description: Submission details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.SubmitRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Submit code for judging
+      tags:
+      - submissions
+  /submit/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific submission by its ID
+      parameters:
+      - description: Submission ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get submission by ID
+      tags:
+      - submissions
+schemes:
+- https
+- http
+swagger: "2.0"

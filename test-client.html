@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innogen API Test Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .response pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+        .success {
+            color: #22543d;
+            background: #f0fff4;
+            border-color: #9ae6b4;
+        }
+        .error {
+            color: #742a2a;
+            background: #fff5f5;
+            border-color: #fc8181;
+        }
+        .token-display {
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Innogen API Test Client</h1>
+        <p class="subtitle">Test your competitive programming platform API endpoints</p>
+
+        <!-- Login Section -->
+        <div class="card">
+            <h2>1. Authentication - Login</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            <button onclick="login()">Login</button>
+            <div id="loginResponse"></div>
+            <div id="tokenDisplay" style="display:none;">
+                <p><strong>JWT Token:</strong></p>
+                <div class="token-display" id="tokenValue"></div>
+            </div>
+        </div>
+
+        <!-- Get Current User -->
+        <div class="card">
+            <h2>2. Get Current User</h2>
+            <button onclick="getCurrentUser()">Get Current User Info</button>
+            <div id="userResponse"></div>
+        </div>
+
+        <!-- Get Problems -->
+        <div class="card">
+            <h2>3. Get All Problems</h2>
+            <button onclick="getProblems()">Fetch Problems</button>
+            <div id="problemsResponse"></div>
+        </div>
+
+        <!-- Submit Code -->
+        <div class="card">
+            <h2>4. Submit Code</h2>
+            <div class="form-group">
+                <label>Problem ID</label>
+                <input type="text" id="problemId" placeholder="1">
+            </div>
+            <div class="form-group">
+                <label>Language</label>
+                <select id="language">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="go">Go</option>
+                    <option value="cpp">C++</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Code</label>
+                <textarea id="code" placeholder="print('Hello, World!')"></textarea>
+            </div>
+            <button onclick="submitCode()">Submit Code</button>
+            <div id="submitResponse"></div>
+        </div>
+
+        <!-- Get Submission -->
+        <div class="card">
+            <h2>5. Get Submission Status</h2>
+            <div class="form-group">
+                <label>Submission ID</label>
+                <input type="text" id="submissionId" placeholder="Enter submission UUID">
+            </div>
+            <button onclick="getSubmission()">Get Submission</button>
+            <div id="submissionResponse"></div>
+        </div>
+
+        <!-- Run Code -->
+        <div class="card">
+            <h2>6. Run Code Directly</h2>
+            <div class="form-group">
+                <label>Language</label>
+                <select id="runLanguage">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="go">Go</option>
+                    <option value="cpp">C++</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Code</label>
+                <textarea id="runCode" placeholder="print('Hello, World!')"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Input (optional)</label>
+                <textarea id="input" placeholder="Input for the program"></textarea>
+            </div>
+            <button onclick="runCode()">Run Code</button>
+            <div id="runResponse"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'response error' : 'response success';
+            element.className = className;
+            element.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                showResponse('loginResponse', data, !response.ok);
+
+                if (response.ok) {
+                    authToken = data.token;
+                    document.getElementById('tokenDisplay').style.display = 'block';
+                    document.getElementById('tokenValue').textContent = authToken;
+                }
+            } catch (error) {
+                showResponse('loginResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getCurrentUser() {
+            try {
+                const response = await fetch('/api/me', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('userResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('userResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getProblems() {
+            try {
+                const response = await fetch('/api/problems');
+                const data = await response.json();
+                showResponse('problemsResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('problemsResponse', { error: error.message }, true);
+            }
+        }
+
+        async function submitCode() {
+            const problemId = document.getElementById('problemId').value;
+            const language = document.getElementById('language').value;
+            const code = document.getElementById('code').value;
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ problemId: parseInt(problemId), language, code })
+                });
+
+                const data = await response.json();
+                showResponse('submitResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('submitResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getSubmission() {
+            const submissionId = document.getElementById('submissionId').value;
+
+            try {
+                const response = await fetch(`/api/submit/${submissionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('submissionResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('submissionResponse', { error: error.message }, true);
+            }
+        }
+
+        async function runCode() {
+            const language = document.getElementById('runLanguage').value;
+            const code = document.getElementById('runCode').value;
+            const input = document.getElementById('input').value;
+
+            try {
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ language, code, input })
+                });
+
+                const data = await response.json();
+                showResponse('runResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('runResponse', { error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>

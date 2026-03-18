@@ -1,4 +1,13 @@
-// Package controllers
+// @title Innogen Backend API
+// @version 1.0
+// @description API for competitive programming platform
+// @host code.innogenlab.com
+// @BasePath /api
+// @schemes https http
+// @securityDefinitions.apiKey BearerAuth
+// @type apiKey
+// @in header
+// @name Authorization
 package controllers
 
 import (
@@ -17,6 +26,18 @@ type RunRequest struct {
 	Stdin     string `json:"stdin"`
 }
 
+// RunCode godoc
+// @Summary Run code directly
+// @Description Execute code without test cases and return the result
+// @Tags run
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body RunRequest true "Code execution details"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /run [post]
 func RunCode(c *gin.Context) {
 	var req RunRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

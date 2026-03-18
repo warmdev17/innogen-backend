@@ -1,4 +1,13 @@
-// Package controllers
+// @title Innogen Backend API
+// @version 1.0
+// @description API for competitive programming platform
+// @host code.innogenlab.com
+// @BasePath /api
+// @schemes https http
+// @securityDefinitions.apiKey BearerAuth
+// @type apiKey
+// @in header
+// @name Authorization
 package controllers
 
 import (
@@ -45,6 +54,18 @@ type ProblemDetailResponse struct {
 	IsPublished    bool      `json:"isPublished"`
 }
 
+// CreateProblem godoc
+// @Summary Create a new problem
+// @Description Create a new problem with test cases (admin/teacher only)
+// @Tags problems
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body CreateProblemRequest true "Problem details"
+// @Success 201 {object} ProblemDetailResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Router /admin/problems [post]
 func CreateProblem(c *gin.Context) {
 	var req CreateProblemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -83,6 +104,14 @@ func CreateProblem(c *gin.Context) {
 	c.JSON(http.StatusCreated, problem)
 }
 
+// GetProblems godoc
+// @Summary Get all problems
+// @Description Retrieve list of all problems
+// @Tags problems
+// @Accept json
+// @Produce json
+// @Success 200 {array} ProblemListResponse
+// @Router /problems [get]
 func GetProblems(c *gin.Context) {
 	var problems []models.Problem
 	database.DB.Select("id, slug, title, difficulty").Find(&problems)
@@ -105,6 +134,17 @@ func GetProblems(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// GetProblemByID godoc
+// @Summary Get problem by ID
+// @Description Retrieve a specific problem by its ID
+// @Tags problems
+// @Accept json
+// @Produce json
+// @Param id path int true "Problem ID"
+// @Success 200 {object} ProblemDetailResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /problems/{id} [get]
 func GetProblemByID(c *gin.Context) {
 	id := c.Param("id")
 	var p models.Problem

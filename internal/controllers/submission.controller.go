@@ -1,4 +1,13 @@
-// Package controllers
+// @title Innogen Backend API
+// @version 1.0
+// @description API for competitive programming platform
+// @host code.innogenlab.com
+// @BasePath /api
+// @schemes https http
+// @securityDefinitions.apiKey BearerAuth
+// @type apiKey
+// @in header
+// @name Authorization
 package controllers
 
 import (
@@ -16,6 +25,18 @@ type SubmitRequest struct {
 	Language  string `json:"language"`
 }
 
+// Submit godoc
+// @Summary Submit code for judging
+// @Description Submit code for a problem to be judged against test cases
+// @Tags submissions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body SubmitRequest true "Submission details"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /submit [post]
 func Submit(c *gin.Context) {
 	var req SubmitRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,6 +77,18 @@ func Submit(c *gin.Context) {
 	})
 }
 
+// GetSubmission godoc
+// @Summary Get submission by ID
+// @Description Retrieve a specific submission by its ID
+// @Tags submissions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Submission ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 403 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /submit/{id} [get]
 func GetSubmission(c *gin.Context) {
 	id := c.Param("id")
 	var sub models.Submission
