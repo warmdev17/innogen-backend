@@ -43,6 +43,7 @@ func Connect() {
 		&models.LessonProblem{},
 		&models.Tag{},
 		&models.ProblemTag{},
+		&models.RefreshToken{},
 	); err != nil {
 		log.Fatal("Migration failed:", err)
 	}

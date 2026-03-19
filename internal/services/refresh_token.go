@@ -8,23 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/warmdev17/innogen-backend/internal/database"
+	"github.com/warmdev17/innogen-backend/internal/models"
 )
-
-// RefreshToken represents a refresh token record
-type RefreshToken struct {
-	ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	UserID     uint      `gorm:"not null;index" json:"userId"`
-	TokenHash  string    `gorm:"type:text;not null" json:"-"`
-	ExpiresAt  time.Time `gorm:"not null;index" json:"expiresAt"`
-	Revoked    bool      `gorm:"default:false" json:"revoked"`
-	CreatedAt  time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"createdAt"`
-	UpdatedAt  time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updatedAt"`
-}
-
-// TableName specifies the table name for RefreshToken
-func (RefreshToken) TableName() string {
-	return "refresh_tokens"
-}
 
 // generateSecureToken creates a cryptographically secure random token
 func generateSecureToken(length int) (string, error) {
@@ -53,7 +38,7 @@ func CreateRefreshToken(userID uint) (string, error) {
 	hashedToken := hashToken(rawToken)
 
 	// Create token record
-	refreshToken := RefreshToken{
+	refreshToken := models.RefreshToken{
 		ID:        uuid.New(),
 		UserID:    userID,
 		TokenHash: hashedToken,
@@ -69,10 +54,10 @@ func CreateRefreshToken(userID uint) (string, error) {
 }
 
 // VerifyRefreshToken checks if a refresh token is valid
-func VerifyRefreshToken(rawToken string, userID uint) (*RefreshToken, error) {
+func VerifyRefreshToken(rawToken string, userID uint) (*models.RefreshToken, error) {
 	hashedToken := hashToken(rawToken)
 
-	var refreshToken RefreshToken
+	var refreshToken models.RefreshToken
 	if err := database.DB.Where("user_id = ? AND token_hash = ? AND revoked = ? AND expires_at > ?",
 		userID, hashedToken, false, time.Now()).First(&refreshToken).Error; err != nil {
 		return nil, err
@@ -94,7 +79,7 @@ func RevokeRefreshToken(rawToken string, userID uint) error {
 
 // RevokeAllUserTokens revokes all refresh tokens for a user
 func RevokeAllUserTokens(userID uint) error {
-	return database.DB.Model(&RefreshToken{}).Where("user_id = ?", userID).Update("revoked", true).Error
+	return database.DB.Model(&models.RefreshToken{}).Where("user_id = ?", userID).Update("revoked", true).Error
 }
 
 // RotateRefreshToken creates a new refresh token and revokes the old one
