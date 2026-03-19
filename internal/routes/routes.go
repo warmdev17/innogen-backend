@@ -9,41 +9,56 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	{
+		// Authentication routes
+		// NOTE: Register and send-otp routes are temporarily disabled
+		// Only login is available for existing accounts
 		api.POST("/auth/login", controllers.Login)
+		api.POST("/auth/refresh", controllers.RefreshToken)
+
 		api.GET("/health", func(c *gin.Context) {
 			c.JSON(200, gin.H{"status": "ok"})
 		})
-        
-        // Public Problems
-        api.GET("/problems", controllers.GetProblems)
-        api.GET("/problems/:id", controllers.GetProblemByID)
 
-		protected := api.Group("/me")
+		// Public Problems
+		api.GET("/problems", controllers.GetProblems)
+		api.GET("/problems/:id", controllers.GetProblemByID)
+
+		// Protected routes
+		protected := api.Group("")
 		protected.Use(middleware.JWTAuth())
 		{
-			protected.GET("", controllers.GetCurrentUser)
-		}
-        
-        // Admin routes
-        admin := api.Group("/admin")
-        admin.Use(middleware.JWTAuth(), middleware.RequireRole("admin", "teacher"))
-        {
-            admin.POST("/problems", controllers.CreateProblem)
-        }
+			// User info
+			me := protected.Group("/me")
+			{
+				me.GET("", controllers.GetCurrentUser)
+			}
 
-        // Submissions
-        submit := api.Group("/submit")
-        submit.Use(middleware.JWTAuth())
-        {
-            submit.POST("", controllers.Submit)
-            submit.GET("/:id", controllers.GetSubmission)
-        }
-        
-        // Run code directly
-        run := api.Group("/run")
-        run.Use(middleware.JWTAuth())
-        {
-            run.POST("", controllers.RunCode)
-        }
+			// Auth
+			auth := protected.Group("/auth")
+			{
+				auth.POST("/logout", controllers.Logout)
+				auth.POST("/logout-all", controllers.LogoutAll)
+			}
+
+			// Admin routes
+			admin := protected.Group("/admin")
+			admin.Use(middleware.RequireRole("admin", "teacher"))
+			{
+				admin.POST("/problems", controllers.CreateProblem)
+			}
+
+			// Submissions
+			submit := protected.Group("/submit")
+			{
+				submit.POST("", controllers.Submit)
+				submit.GET("/:id", controllers.GetSubmission)
+			}
+
+			// Run code directly
+			run := protected.Group("/run")
+			{
+				run.POST("", controllers.RunCode)
+			}
+		}
 	}
 }

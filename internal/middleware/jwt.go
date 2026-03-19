@@ -18,7 +18,7 @@ func JWTAuth() gin.HandlerFunc {
 		}
 
 		tokenStr := strings.TrimPrefix(auth, "Bearer ")
-		token, err := utils.ParseToken(tokenStr)
+		token, err := utils.ParseAccessToken(tokenStr)
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(401, gin.H{"error": "invalid token"})
 			return
@@ -32,6 +32,7 @@ func JWTAuth() gin.HandlerFunc {
 
 		c.Set("user_id", claims["user_id"])
 		c.Set("role", claims["role"])
+		c.Set("claims", claims)
 
 		c.Next()
 	}

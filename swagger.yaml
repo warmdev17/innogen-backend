@@ -1,0 +1,322 @@
+openapi: 3.0.3
+info:
+  title: Innogen Backend API
+  version: 1.0.0
+  description: API documentation for Innogen backend
+
+servers:
+  - url: https://code.innogenlab.com/api
+    description: Production
+  - url: http://localhost:8080/api
+    description: Local Development
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    MeResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        role:
+          type: string
+
+    Problem:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
+        difficulty:
+          type: string
+
+    CreateProblemRequest:
+      type: object
+      required: [title, slug, problemMd, difficulty]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        problemMd:
+          type: string
+        difficulty:
+          type: string
+        timeLimitMs:
+          type: integer
+        memoryLimitKb:
+          type: integer
+        testcases:
+          type: array
+          items:
+            type: object
+            properties:
+              inputData:
+                type: string
+              expectedOutput:
+                type: string
+              isHidden:
+                type: boolean
+
+    Submission:
+      type: object
+      properties:
+        ID:
+          type: string
+        UserID:
+          type: integer
+        ProblemID:
+          type: integer
+        Code:
+          type: string
+        Language:
+          type: string
+        Status:
+          type: string
+        RuntimeMs:
+          type: integer
+        MemoryKb:
+          type: integer
+        ErrorMessage:
+          type: string
+        PassCount:
+          type: integer
+        TotalTestcases:
+          type: integer
+        CreatedAt:
+          type: string
+          format: date-time
+
+    SubmitRequest:
+      type: object
+      required: [problem_id, code, language]
+      properties:
+        problem_id:
+          type: integer
+        code:
+          type: string
+        language:
+          type: string
+
+    SubmitResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        submission:
+          $ref: "#/components/schemas/Submission"
+
+    RunRequest:
+      type: object
+      required: [code, language]
+      properties:
+        problemId:
+          type: integer
+        code:
+          type: string
+        language:
+          type: string
+        stdin:
+          type: string
+
+    RunResponse:
+      type: object
+      properties:
+        language:
+          type: string
+        version:
+          type: string
+        run:
+          type: object
+          properties:
+            stdout:
+              type: string
+            stderr:
+              type: string
+            code:
+              type: integer
+            signal:
+              type: string
+              nullable: true
+            output:
+              type: string
+
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Unauthorized
+
+  /me:
+    get:
+      summary: Get current user
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+
+  /problems:
+    get:
+      summary: Get all problems
+      tags: [Problems]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Problem"
+
+  /problems/{id}:
+    get:
+      summary: Get problem by ID
+      tags: [Problems]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Not found
+
+  /admin/problems:
+    post:
+      summary: Create problem (Admin/Teacher only)
+      tags: [Admin]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProblemRequest"
+      responses:
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+
+  /submit:
+    post:
+      summary: Submit code
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitResponse"
+        "500":
+          description: Server error
+
+  /submit/{id}:
+    get:
+      summary: Get submission status
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+
+  /run:
+    post:
+      summary: Run code synchronously
+      tags: [Execution]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunResponse"
