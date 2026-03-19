@@ -56,7 +56,12 @@ func Submit(c *gin.Context) {
 		Status:    "pending",
 	}
 
-	database.DB.Create(&sub)
+	tx := database.DB.Begin()
+	if err := tx.Create(&sub).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Failed to save submission"})
+		return
+	}
 
 	jobData := map[string]any{
 		"submission_id": sub.ID,
@@ -67,9 +72,12 @@ func Submit(c *gin.Context) {
 
 	err := database.Rdb.RPush(database.Ctx, "judge_queue", jsonData).Err()
 	if err != nil {
+		tx.Rollback()
 		c.JSON(500, gin.H{"error": "Failed to queue submission"})
 		return
 	}
+
+	tx.Commit()
 
 	c.JSON(201, gin.H{
 		"message":    "Submission queued",

@@ -13,32 +13,42 @@ import (
 	"github.com/warmdev17/innogen-backend/internal/services"
 )
 
-func StartWorker() {
-	log.Println("Judge Worker started...")
+func StartWorker(concurrency int) {
+	log.Printf("Judge Worker started with %d concurrent workers...\n", concurrency)
 
+	for i := 0; i < concurrency; i++ {
+		go workerLoop(i)
+	}
+
+	// Block main worker goroutine
+	select {}
+}
+
+func workerLoop(workerID int) {
 	for {
 		result, err := database.Rdb.BLPop(context.Background(), 0*time.Second, "judge_queue").Result()
 		if err != nil {
-			log.Println("Redis error:", err)
+			log.Printf("Worker %d Redis error: %v\n", workerID, err)
+			time.Sleep(1 * time.Second) // pause before retrying
 			continue
 		}
 
 		payload := result[1]
-		log.Println("New job received:", payload)
+		log.Printf("Worker %d New job received: %s\n", workerID, payload)
 
 		var jobData map[string]any
 		if err := json.Unmarshal([]byte(payload), &jobData); err != nil {
-			log.Println("Invalid JSON:", err)
+			log.Printf("Worker %d Invalid JSON: %v\n", workerID, err)
 			continue
 		}
 
 		subIDStr, ok := jobData["submission_id"].(string)
 		if !ok {
-			log.Println("Invalid submission_id in job payload")
+			log.Printf("Worker %d Invalid submission_id in job payload\n", workerID)
 			continue
 		}
 
-		go processSubmission(subIDStr)
+		processSubmission(subIDStr)
 	}
 }
 

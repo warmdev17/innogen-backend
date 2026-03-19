@@ -1,3 +1,5 @@
 /innogen-backend
 .env
 index.html
+bin/
+innogen

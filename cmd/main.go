@@ -28,7 +28,7 @@ func main() {
 	database.Connect()
 	database.ConnectRedis()
 
-	go judge.StartWorker()
+	go judge.StartWorker(5)
 
 	r := gin.Default()
 
