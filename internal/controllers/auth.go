@@ -43,6 +43,10 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refreshToken"`
 }
@@ -210,7 +214,7 @@ func RefreshToken(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} gin.H{"message": "string"}
+// @Success 200 {object} SuccessResponse
 // @Failure 401 {object} ErrorResponse
 // @Router /auth/logout [post]
 func Logout(c *gin.Context) {
@@ -248,7 +252,7 @@ func Logout(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} gin.H{"message": "string"}
+// @Success 200 {object} SuccessResponse
 // @Failure 401 {object} ErrorResponse
 // @Router /auth/logout-all [post]
 func LogoutAll(c *gin.Context) {

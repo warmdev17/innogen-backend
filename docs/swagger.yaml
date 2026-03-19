@@ -37,7 +37,9 @@ definitions:
     type: object
   controllers.LoginResponse:
     properties:
-      token:
+      accessToken:
+        type: string
+      refreshToken:
         type: string
     type: object
   controllers.MeResponse:
@@ -87,6 +89,18 @@ definitions:
       title:
         type: string
     type: object
+  controllers.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    type: object
+  controllers.RefreshTokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
   controllers.RunRequest:
     properties:
       code:
@@ -110,6 +124,11 @@ definitions:
         type: string
       problemId:
         type: integer
+    type: object
+  controllers.SuccessResponse:
+    properties:
+      message:
+        type: string
     type: object
   controllers.TestcaseRequest:
     properties:
@@ -166,29 +185,8 @@ paths:
     post:
       consumes:
       - application/json
-      - application/json
-      description: |-
-        Authenticates the user and returns a JWT token
-        Authenticate user with email and password
+      description: Authenticate user with email and password
       parameters:
-      - description: User email
-        in: body
-        name: email
-        required: true
-        schema:
-          properties:
-            email:
-              type: string
-          type: object
-      - description: User password
-        in: body
-        name: password
-        required: true
-        schema:
-          properties:
-            password:
-              type: string
-          type: object
       - description: Login credentials
         in: body
         name: LoginRequest
@@ -196,7 +194,6 @@ paths:
         schema:
           $ref: '#/definitions/controllers.LoginRequest'
       produces:
-      - application/json
       - application/json
       responses:
         "200":
@@ -214,109 +211,80 @@ paths:
       summary: Login user
       tags:
       - auth
-      - auth
-  /auth/register:
+  /auth/logout:
     post:
       consumes:
       - application/json
-      description: Verifies the OTP and creates a new user with the student role (Currently
-        disabled)
-      parameters:
-      - description: User email
-        in: body
-        name: email
-        required: true
-        schema:
-          properties:
-            email:
-              type: string
-          type: object
-      - description: User password
-        in: body
-        name: password
-        required: true
-        schema:
-          properties:
-            password:
-              type: string
-          type: object
-      - description: 6-digit OTP
-        in: body
-        name: otp
-        required: true
-        schema:
-          properties:
-            otp:
-              type: string
-          type: object
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User registered successfully
-          schema:
-            properties:
-              message:
-                type: string
-            type: object
-        "400":
-          description: Bad request
-          schema:
-            properties:
-              error:
-                type: string
-            type: object
-      summary: Register a new user
-      tags:
-      - auth
-  /auth/send-otp:
-    post:
-      consumes:
-      - application/json
-      description: Sends a 6-digit OTP to the user's email for registration (Currently
-        disabled)
-      parameters:
-      - description: User email
-        in: body
-        name: email
-        required: true
-        schema:
-          properties:
-            email:
-              type: string
-          type: object
+      description: Revoke the refresh token and logout the user
       produces:
       - application/json
       responses:
         "200":
-          description: OTP sent successfully
+          description: OK
           schema:
-            properties:
-              message:
-                type: string
-            type: object
-        "400":
-          description: Bad request
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "401":
+          description: Unauthorized
           schema:
-            properties:
-              error:
-                type: string
-            type: object
-      summary: Send OTP for registration
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - auth
+  /auth/logout-all:
+    post:
+      consumes:
+      - application/json
+      description: Revoke all refresh tokens for the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout from all devices
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a valid refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: RefreshTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RefreshTokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Refresh access token
       tags:
       - auth
   /me:
     get:
       consumes:
       - application/json
-      - application/json
-      description: |-
-        Returns the current authenticated user's information
-        Get information about the authenticated user
-        Get information about the authenticated user
+      description: Get information about the authenticated user
       produces:
-      - application/json
-      - application/json
       - application/json
       responses:
         "200":
@@ -327,21 +295,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
-        "404":
-          description: User not found
-          schema:
-            properties:
-              error:
-                type: string
-            type: object
       security:
-      - BearerAuth: []
-      - BearerAuth: []
       - BearerAuth: []
       summary: Get current user
       tags:
-      - auth
-      - me
       - me
   /problems:
     get:

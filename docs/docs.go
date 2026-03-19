@@ -68,49 +68,18 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Authenticates the user and returns a JWT token\nAuthenticate user with email and password",
+                "description": "Authenticate user with email and password",
                 "consumes": [
-                    "application/json",
                     "application/json"
                 ],
                 "produces": [
-                    "application/json",
                     "application/json"
                 ],
                 "tags": [
-                    "auth",
                     "auth"
                 ],
                 "summary": "Login user",
                 "parameters": [
-                    {
-                        "description": "User email",
-                        "name": "email",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "email": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "description": "User password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "password": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
                     {
                         "description": "Login credentials",
                         "name": "LoginRequest",
@@ -143,9 +112,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/auth/logout": {
             "post": {
-                "description": "Verifies the OTP and creates a new user with the student role (Currently disabled)",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revoke the refresh token and logout the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -155,80 +129,31 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "User email",
-                        "name": "email",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "email": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "description": "User password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "password": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "description": "6-digit OTP",
-                        "name": "otp",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "otp": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                ],
+                "summary": "Logout user",
                 "responses": {
-                    "201": {
-                        "description": "User registered successfully",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/controllers.SuccessResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "error": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/auth/send-otp": {
+        "/auth/logout-all": {
             "post": {
-                "description": "Sends a 6-digit OTP to the user's email for registration (Currently disabled)",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revoke all refresh tokens for the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -238,44 +163,58 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Send OTP for registration",
+                "summary": "Logout from all devices",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Get a new access token using a valid refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
                 "parameters": [
                     {
-                        "description": "User email",
-                        "name": "email",
+                        "description": "Refresh token",
+                        "name": "RefreshTokenRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "email": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/controllers.RefreshTokenRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OTP sent successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/controllers.RefreshTokenResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "error": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -286,27 +225,16 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "BearerAuth": []
-                    },
-                    {
-                        "BearerAuth": []
                     }
                 ],
-                "description": "Returns the current authenticated user's information\nGet information about the authenticated user\nGet information about the authenticated user",
+                "description": "Get information about the authenticated user",
                 "consumes": [
-                    "application/json",
                     "application/json"
                 ],
                 "produces": [
-                    "application/json",
-                    "application/json",
                     "application/json"
                 ],
                 "tags": [
-                    "auth",
-                    "me",
                     "me"
                 ],
                 "summary": "Get current user",
@@ -321,17 +249,6 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "error": {
-                                    "type": "string"
-                                }
-                            }
                         }
                     }
                 }
@@ -619,7 +536,10 @@ const docTemplate = `{
         "controllers.LoginResponse": {
             "type": "object",
             "properties": {
-                "token": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -696,6 +616,25 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.RefreshTokenRequest": {
+            "type": "object",
+            "properties": {
+                "refreshToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.RefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.RunRequest": {
             "type": "object",
             "required": [
@@ -729,6 +668,14 @@ const docTemplate = `{
                 },
                 "problemId": {
                     "type": "integer"
+                }
+            }
+        },
+        "controllers.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         },
