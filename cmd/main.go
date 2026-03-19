@@ -18,6 +18,8 @@ import (
 	"github.com/warmdev17/innogen-backend/internal/database"
 	"github.com/warmdev17/innogen-backend/internal/judge"
 	"github.com/warmdev17/innogen-backend/internal/routes"
+
+	_ "github.com/warmdev17/innogen-backend/docs"
 )
 
 func main() {
