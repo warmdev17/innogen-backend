@@ -6,16 +6,36 @@ services:
       - "8081:8080"
     environment:
       - MODE=production
+      # Database configuration
       - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=innogen
+      - POSTGRES_PASSWORD=maiphuongdangyeu
+      - POSTGRES_DB=innogendb
+      # Redis configuration
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Piston (code execution service)
       - PISTON_URL=https://excode.innogenlab.com
+      # JWT secrets (MUST be set in .env or here)
+      # - JWT_SECRET=your-access-token-secret
+      # - JWT_REFRESH_SECRET=your-refresh-token-secret
+      # - ADMIN_PASSWORD=admin123
     env_file:
       - .env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - innogen-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   postgres:
     image: postgres:15
@@ -28,6 +48,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U innogen -d innogendb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - innogen-network
 
@@ -38,8 +63,42 @@ services:
       - "6380:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - innogen-network
+
+  # Seeder service (runs once and exits)
+  seeder:
+    build: .
+    restart: "no"
+    environment:
+      - MODE=production
+      # Database configuration
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=innogen
+      - POSTGRES_PASSWORD=maiphuongdangyeu
+      - POSTGRES_DB=innogendb
+      # JWT secrets (MUST be set in .env or here)
+      # - JWT_SECRET=your-access-token-secret
+      # - JWT_REFRESH_SECRET=your-refresh-token-secret
+      # - ADMIN_PASSWORD=admin123
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - innogen-network
+    command: ./innogen-seed
+    profiles:
+      - tools
 
 networks:
   innogen-network:
