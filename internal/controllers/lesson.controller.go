@@ -9,7 +9,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetLesson retrieves a specific lesson by ID, including its associated problems
+// GetLesson godoc
+// @Summary Get lesson by ID
+// @Description Retrieve a specific lesson by its ID, including nested problems
+// @Tags course
+// @Accept json
+// @Produce json
+// @Param id path int true "Lesson ID"
+// @Success 200 {object} models.Lesson
+// @Failure 404 {object} map[string]string
+// @Router /lessons/{id} [get]
 func GetLesson(c *gin.Context) {
 	id := c.Param("id")
 	var lesson models.Lesson

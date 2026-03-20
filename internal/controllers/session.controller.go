@@ -9,7 +9,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetSession retrieves a specific session by ID
+// GetSession godoc
+// @Summary Get session by ID
+// @Description Retrieve a specific session by its ID, including nested lessons
+// @Tags course
+// @Accept json
+// @Produce json
+// @Param id path int true "Session ID"
+// @Success 200 {object} models.SubjectSession
+// @Failure 404 {object} map[string]string
+// @Router /sessions/{id} [get]
 func GetSession(c *gin.Context) {
 	id := c.Param("id")
 	var session models.SubjectSession
