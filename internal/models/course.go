@@ -22,7 +22,8 @@ type Lesson struct {
 }
 
 type LessonProblem struct {
-	LessonID   uint `gorm:"primaryKey" json:"lessonId"`
-	ProblemID  uint `gorm:"primaryKey" json:"problemId"`
-	OrderIndex int  `gorm:"not null" json:"orderIndex"`
+	LessonID   uint     `gorm:"primaryKey" json:"lessonId"`
+	ProblemID  uint     `gorm:"primaryKey" json:"problemId"`
+	OrderIndex int      `gorm:"not null" json:"orderIndex"`
+	Problem    *Problem `gorm:"foreignKey:ProblemID" json:"problem,omitempty"`
 }

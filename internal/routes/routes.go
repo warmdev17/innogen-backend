@@ -23,6 +23,12 @@ func RegisterRoutes(r *gin.Engine) {
 		api.GET("/problems", controllers.GetProblems)
 		api.GET("/problems/:id", controllers.GetProblemByID)
 
+		// Course Structure
+		api.GET("/subjects", controllers.GetSubjects)
+		api.GET("/subjects/:slug", controllers.GetSubject)
+		api.GET("/sessions/:id", controllers.GetSession)
+		api.GET("/lessons/:id", controllers.GetLesson)
+
 		// Protected routes
 		protected := api.Group("")
 		protected.Use(middleware.JWTAuth())
