@@ -6,12 +6,7 @@ services:
       - "8081:8080"
     environment:
       - MODE=production
-      # Database configuration
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=innogen
-      - POSTGRES_PASSWORD=maiphuongdangyeu
-      - POSTGRES_DB=innogendb
+      # Database configuration is provided by the .env file
       # Redis configuration
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -24,8 +19,6 @@ services:
     env_file:
       - .env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -37,24 +30,6 @@ services:
       retries: 5
       start_period: 10s
 
-  postgres:
-    image: postgres:15
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: innogen
-      POSTGRES_PASSWORD: maiphuongdangyeu
-      POSTGRES_DB: innogendb
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U innogen -d innogendb"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - innogen-network
 
   redis:
     image: redis:7
@@ -77,12 +52,7 @@ services:
     restart: "no"
     environment:
       - MODE=production
-      # Database configuration
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=innogen
-      - POSTGRES_PASSWORD=maiphuongdangyeu
-      - POSTGRES_DB=innogendb
+      # Database configuration is provided by the .env file
       # JWT secrets (MUST be set in .env or here)
       # - JWT_SECRET=your-access-token-secret
       # - JWT_REFRESH_SECRET=your-refresh-token-secret
@@ -90,8 +60,6 @@ services:
     env_file:
       - .env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -105,5 +73,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
   redis_data:
