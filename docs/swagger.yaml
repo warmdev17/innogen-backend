@@ -142,70 +142,72 @@ definitions:
     - expectedOutput
     - inputData
     type: object
-  models.Lesson:
+  models.LessonItem:
     properties:
-      createdAt:
+      id:
+        type: integer
+      orderIndex:
+        type: integer
+      title:
         type: string
+    type: object
+  models.LessonProblemItem:
+    properties:
+      acceptanceRate:
+        type: number
+      difficulty:
+        type: string
+      id:
+        type: integer
+      orderIndex:
+        type: integer
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
+  models.LessonResponse:
+    properties:
       id:
         type: integer
       orderIndex:
         type: integer
       problems:
         items:
-          $ref: '#/definitions/models.LessonProblem'
+          $ref: '#/definitions/models.LessonProblemItem'
         type: array
-      subjectSessionId:
-        type: integer
       title:
         type: string
     type: object
-  models.LessonProblem:
+  models.SessionItem:
     properties:
-      lessonId:
-        type: integer
-      orderIndex:
-        type: integer
-      problem:
-        $ref: '#/definitions/models.Problem'
-      problemId:
-        type: integer
-    type: object
-  models.Problem:
-    properties:
-      acceptanceRate:
-        type: number
-      createdAt:
-        type: string
-      createdBy:
-        type: integer
-      difficulty:
-        type: string
       id:
         type: integer
-      isPublished:
-        type: boolean
-      memoryLimitKb:
-        type: integer
-      problemMd:
-        type: string
-      slug:
-        type: string
-      testcases:
+      lessons:
         items:
-          $ref: '#/definitions/models.Testcase'
+          $ref: '#/definitions/models.LessonItem'
         type: array
-      timeLimitMs:
+      orderIndex:
         type: integer
       title:
         type: string
-      updatedAt:
+    type: object
+  models.SessionResponse:
+    properties:
+      id:
+        type: integer
+      lessons:
+        items:
+          $ref: '#/definitions/models.LessonItem'
+        type: array
+      orderIndex:
+        type: integer
+      title:
         type: string
     type: object
-  models.Subject:
+  models.SubjectDetailResponse:
     properties:
       color:
-        type: string
-      createdAt:
         type: string
       description:
         type: string
@@ -215,45 +217,22 @@ definitions:
         type: string
       sessions:
         items:
-          $ref: '#/definitions/models.SubjectSession'
+          $ref: '#/definitions/models.SessionItem'
         type: array
       slug:
         type: string
-      updatedAt:
-        type: string
     type: object
-  models.SubjectSession:
+  models.SubjectListItem:
     properties:
-      createdAt:
+      color:
+        type: string
+      description:
         type: string
       id:
         type: integer
-      lessons:
-        items:
-          $ref: '#/definitions/models.Lesson'
-        type: array
-      orderIndex:
-        type: integer
-      subjectId:
-        type: integer
-      title:
+      name:
         type: string
-    type: object
-  models.Testcase:
-    properties:
-      createdAt:
-        type: string
-      expectedOutput:
-        type: string
-      id:
-        type: integer
-      inputData:
-        type: string
-      isHidden:
-        type: boolean
-      problemId:
-        type: integer
-      role:
+      slug:
         type: string
     type: object
 host: code.innogenlab.com
@@ -397,7 +376,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a specific lesson by its ID, including nested problems
+      description: Retrieve a lesson with its problems (display info only)
       parameters:
       - description: Lesson ID
         in: path
@@ -410,7 +389,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Lesson'
+            $ref: '#/definitions/models.LessonResponse'
         "404":
           description: Not Found
           schema:
@@ -524,7 +503,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a specific session by its ID, including nested lessons
+      description: Retrieve a session with its lessons (display info only)
       parameters:
       - description: Session ID
         in: path
@@ -537,7 +516,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SubjectSession'
+            $ref: '#/definitions/models.SessionResponse'
         "404":
           description: Not Found
           schema:
@@ -551,7 +530,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve list of all subjects (course structures)
+      description: Retrieve list of all subjects for display
       produces:
       - application/json
       responses:
@@ -559,7 +538,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Subject'
+              $ref: '#/definitions/models.SubjectListItem'
             type: array
       summary: Get all subjects
       tags:
@@ -568,8 +547,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a specific subject by its slug, including nested sessions
-        and lessons
+      description: Retrieve a subject with its sessions and lessons (display info
+        only)
       parameters:
       - description: Subject Slug
         in: path
@@ -582,7 +561,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Subject'
+            $ref: '#/definitions/models.SubjectDetailResponse'
         "404":
           description: Not Found
           schema:
