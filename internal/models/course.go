@@ -27,3 +27,65 @@ type LessonProblem struct {
 	OrderIndex int      `gorm:"not null" json:"orderIndex"`
 	Problem    *Problem `gorm:"foreignKey:ProblemID" json:"problem,omitempty"`
 }
+
+// ─── Response DTOs (for frontend display) ────────────────────────────────────
+
+// SubjectListItem is used for GET /subjects (list view)
+type SubjectListItem struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Slug        string `json:"slug"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
+}
+
+// LessonItem is used inside session/subject detail responses
+type LessonItem struct {
+	ID         uint   `json:"id"`
+	Title      string `json:"title"`
+	OrderIndex int    `json:"orderIndex"`
+}
+
+// SessionItem is used inside subject detail response
+type SessionItem struct {
+	ID         uint         `json:"id"`
+	Title      string       `json:"title"`
+	OrderIndex int          `json:"orderIndex"`
+	Lessons    []LessonItem `json:"lessons"`
+}
+
+// SubjectDetailResponse is used for GET /subjects/:slug
+type SubjectDetailResponse struct {
+	ID          uint          `json:"id"`
+	Name        string        `json:"name"`
+	Slug        string        `json:"slug"`
+	Description string        `json:"description"`
+	Color       string        `json:"color"`
+	Sessions    []SessionItem `json:"sessions"`
+}
+
+// SessionResponse is used for GET /sessions/:id
+type SessionResponse struct {
+	ID         uint         `json:"id"`
+	Title      string       `json:"title"`
+	OrderIndex int          `json:"orderIndex"`
+	Lessons    []LessonItem `json:"lessons"`
+}
+
+// LessonProblemItem is a lightweight problem entry inside a lesson
+type LessonProblemItem struct {
+	ID             uint    `json:"id"`
+	Slug           string  `json:"slug"`
+	Title          string  `json:"title"`
+	Difficulty     string  `json:"difficulty"`
+	AcceptanceRate float64 `json:"acceptanceRate"`
+	OrderIndex     int     `json:"orderIndex"`
+}
+
+// LessonResponse is used for GET /lessons/:id
+type LessonResponse struct {
+	ID         uint                `json:"id"`
+	Title      string              `json:"title"`
+	OrderIndex int                 `json:"orderIndex"`
+	Problems   []LessonProblemItem `json:"problems"`
+}

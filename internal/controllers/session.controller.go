@@ -11,12 +11,12 @@ import (
 
 // GetSession godoc
 // @Summary Get session by ID
-// @Description Retrieve a specific session by its ID, including nested lessons
+// @Description Retrieve a session with its lessons (display info only)
 // @Tags course
 // @Accept json
 // @Produce json
 // @Param id path int true "Session ID"
-// @Success 200 {object} models.SubjectSession
+// @Success 200 {object} models.SessionResponse
 // @Failure 404 {object} map[string]string
 // @Router /sessions/{id} [get]
 func GetSession(c *gin.Context) {
@@ -35,5 +35,19 @@ func GetSession(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, session)
+	lessons := make([]models.LessonItem, len(session.Lessons))
+	for i, l := range session.Lessons {
+		lessons[i] = models.LessonItem{
+			ID:         l.ID,
+			Title:      l.Title,
+			OrderIndex: l.OrderIndex,
+		}
+	}
+
+	c.JSON(http.StatusOK, models.SessionResponse{
+		ID:         session.ID,
+		Title:      session.Title,
+		OrderIndex: session.OrderIndex,
+		Lessons:    lessons,
+	})
 }

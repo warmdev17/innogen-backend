@@ -11,12 +11,12 @@ import (
 
 // GetLesson godoc
 // @Summary Get lesson by ID
-// @Description Retrieve a specific lesson by its ID, including nested problems
+// @Description Retrieve a lesson with its problems (display info only)
 // @Tags course
 // @Accept json
 // @Produce json
 // @Param id path int true "Lesson ID"
-// @Success 200 {object} models.Lesson
+// @Success 200 {object} models.LessonResponse
 // @Failure 404 {object} map[string]string
 // @Router /lessons/{id} [get]
 func GetLesson(c *gin.Context) {
@@ -36,5 +36,25 @@ func GetLesson(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, lesson)
+	problems := make([]models.LessonProblemItem, 0, len(lesson.Problems))
+	for _, lp := range lesson.Problems {
+		if lp.Problem == nil {
+			continue
+		}
+		problems = append(problems, models.LessonProblemItem{
+			ID:             lp.Problem.ID,
+			Slug:           lp.Problem.Slug,
+			Title:          lp.Problem.Title,
+			Difficulty:     lp.Problem.Difficulty,
+			AcceptanceRate: lp.Problem.AcceptanceRate,
+			OrderIndex:     lp.OrderIndex,
+		})
+	}
+
+	c.JSON(http.StatusOK, models.LessonResponse{
+		ID:         lesson.ID,
+		Title:      lesson.Title,
+		OrderIndex: lesson.OrderIndex,
+		Problems:   problems,
+	})
 }
