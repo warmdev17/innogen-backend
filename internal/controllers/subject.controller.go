@@ -11,7 +11,7 @@ import (
 
 // GetSubjects godoc
 // @Summary Get all subjects
-// @Description Retrieve list of all subjects for display
+// @Description Retrieve all subjects for display (list view)
 // @Tags course
 // @Accept json
 // @Produce json
@@ -19,14 +19,20 @@ import (
 // @Router /subjects [get]
 func GetSubjects(c *gin.Context) {
 	var subjects []models.Subject
-	if err := database.DB.Find(&subjects).Error; err != nil {
+
+	err := database.DB.
+		Order("created_at DESC").
+		Find(&subjects).Error
+
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch subjects"})
 		return
 	}
 
-	result := make([]models.SubjectListItem, len(subjects))
+	// Convert to DTOs for frontend display
+	subjectList := make([]models.SubjectListItem, len(subjects))
 	for i, s := range subjects {
-		result[i] = models.SubjectListItem{
+		subjectList[i] = models.SubjectListItem{
 			ID:          s.ID,
 			Name:        s.Name,
 			Slug:        s.Slug,
@@ -34,12 +40,13 @@ func GetSubjects(c *gin.Context) {
 			Color:       s.Color,
 		}
 	}
-	c.JSON(http.StatusOK, result)
+
+	c.JSON(http.StatusOK, subjectList)
 }
 
 // GetSubject godoc
 // @Summary Get subject by slug
-// @Description Retrieve a subject with its sessions and lessons (display info only)
+// @Description Retrieve a subject with its sessions and lessons (full hierarchy)
 // @Tags course
 // @Accept json
 // @Produce json
@@ -58,6 +65,10 @@ func GetSubject(c *gin.Context) {
 		Preload("Sessions.Lessons", func(db *gorm.DB) *gorm.DB {
 			return db.Order("order_index ASC")
 		}).
+		Preload("Sessions.Lessons.Problems", func(db *gorm.DB) *gorm.DB {
+			return db.Order("order_index ASC")
+		}).
+		Preload("Sessions.Lessons.Problems.Problem").
 		Where("slug = ?", slug).
 		First(&subject).Error
 
@@ -66,20 +77,21 @@ func GetSubject(c *gin.Context) {
 		return
 	}
 
+	// Build sessions with lessons
 	sessions := make([]models.SessionItem, len(subject.Sessions))
-	for i, sess := range subject.Sessions {
-		lessons := make([]models.LessonItem, len(sess.Lessons))
-		for j, l := range sess.Lessons {
+	for i, session := range subject.Sessions {
+		lessons := make([]models.LessonItem, len(session.Lessons))
+		for j, lesson := range session.Lessons {
 			lessons[j] = models.LessonItem{
-				ID:         l.ID,
-				Title:      l.Title,
-				OrderIndex: l.OrderIndex,
+				ID:         lesson.ID,
+				Title:      lesson.Title,
+				OrderIndex: lesson.OrderIndex,
 			}
 		}
 		sessions[i] = models.SessionItem{
-			ID:         sess.ID,
-			Title:      sess.Title,
-			OrderIndex: sess.OrderIndex,
+			ID:         session.ID,
+			Title:      session.Title,
+			OrderIndex: session.OrderIndex,
 			Lessons:    lessons,
 		}
 	}

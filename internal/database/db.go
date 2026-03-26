@@ -32,8 +32,17 @@ func Connect() {
 	}
 
 	DB = db
-	// Only AutoMigrate tables that are not pre-existing in the external db
+	// AutoMigrate all models
 	if err := DB.AutoMigrate(
+		&models.Subject{},
+		&models.SubjectSession{},
+		&models.Lesson{},
+		&models.LessonProblem{},
+		&models.User{},
+		&models.Problem{},
+		&models.Testcase{},
+		&models.Submission{},
+		&models.Tag{},
 		&models.RefreshToken{},
 	); err != nil {
 		log.Fatal("Migration failed:", err)

@@ -3,6 +3,17 @@ package models
 
 import "time"
 
+// Subject represents a subject/course in the competitive programming platform
+type Subject struct {
+	ID          uint             `gorm:"primaryKey" json:"id"`
+	Name        string           `gorm:"type:varchar(255);not null" json:"name"`
+	Slug        string           `gorm:"type:varchar(255);uniqueIndex;not null" json:"slug"`
+	Description string           `gorm:"type:text" json:"description"`
+	Color       string           `gorm:"type:varchar(7);comment:Hex color code for frontend display (e.g., #FF0000)" json:"color"`
+	CreatedAt   time.Time        `gorm:"default:CURRENT_TIMESTAMP" json:"createdAt"`
+	Sessions    []SubjectSession `gorm:"foreignKey:SubjectID" json:"sessions,omitempty"`
+}
+
 type SubjectSession struct {
 	ID         uint      `gorm:"primaryKey" json:"id"`
 	SubjectID  uint      `gorm:"not null" json:"subjectId"`
