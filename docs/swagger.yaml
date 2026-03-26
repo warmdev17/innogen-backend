@@ -530,7 +530,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve list of all subjects for display
+      description: Retrieve all subjects for display (list view)
       produces:
       - application/json
       responses:
@@ -547,8 +547,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a subject with its sessions and lessons (display info
-        only)
+      description: Retrieve a subject with its sessions and lessons (full hierarchy)
       parameters:
       - description: Subject Slug
         in: path

@@ -460,7 +460,7 @@ const docTemplate = `{
         },
         "/subjects": {
             "get": {
-                "description": "Retrieve list of all subjects for display",
+                "description": "Retrieve all subjects for display (list view)",
                 "consumes": [
                     "application/json"
                 ],
@@ -486,7 +486,7 @@ const docTemplate = `{
         },
         "/subjects/{slug}": {
             "get": {
-                "description": "Retrieve a subject with its sessions and lessons (display info only)",
+                "description": "Retrieve a subject with its sessions and lessons (full hierarchy)",
                 "consumes": [
                     "application/json"
                 ],
