@@ -6,7 +6,7 @@ import "time"
 // Subject represents a subject/course in the competitive programming platform
 type Subject struct {
 	ID          uint             `gorm:"primaryKey" json:"id"`
-	Name        string           `gorm:"type:varchar(255);not null" json:"name"`
+	Name        string           `gorm:"type:varchar(255)" json:"name"`
 	Title       string           `gorm:"type:varchar(255);not null" json:"title"`
 	Slug        string           `gorm:"type:varchar(255);uniqueIndex;not null" json:"slug"`
 	Description string           `gorm:"type:text" json:"description"`
