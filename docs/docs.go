@@ -220,6 +220,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/lessons": {
+            "get": {
+                "description": "Retrieve lessons, optionally filtered by sessionId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course"
+                ],
+                "summary": "Get all lessons (with optional filtering)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by session ID",
+                        "name": "sessionId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Lesson"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/lessons/{id}": {
             "get": {
                 "description": "Retrieve a lesson with its problems (display info only)",
@@ -412,6 +446,40 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions": {
+            "get": {
+                "description": "Retrieve sessions, optionally filtered by subjectId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course"
+                ],
+                "summary": "Get all sessions (with optional filtering)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by subject ID",
+                        "name": "subjectId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.SubjectSession"
+                            }
                         }
                     }
                 }
@@ -846,17 +914,73 @@ const docTemplate = `{
                 }
             }
         },
-        "models.LessonItem": {
+        "models.Lesson": {
             "type": "object",
             "properties": {
+                "contentMd": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "orderIndex": {
                     "type": "integer"
                 },
+                "problems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.LessonProblem"
+                    }
+                },
+                "sessionId": {
+                    "description": "Alias for frontend compatibility",
+                    "type": "integer"
+                },
+                "subjectSessionId": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "models.LessonItem": {
+            "type": "object",
+            "properties": {
+                "contentMd": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "orderIndex": {
+                    "type": "integer"
+                },
+                "sessionId": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LessonProblem": {
+            "type": "object",
+            "properties": {
+                "lessonId": {
+                    "type": "integer"
+                },
+                "orderIndex": {
+                    "type": "integer"
+                },
+                "problem": {
+                    "$ref": "#/definitions/models.Problem"
+                },
+                "problemId": {
+                    "type": "integer"
                 }
             }
         },
@@ -886,6 +1010,9 @@ const docTemplate = `{
         "models.LessonResponse": {
             "type": "object",
             "properties": {
+                "contentMd": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -898,7 +1025,57 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.LessonProblemItem"
                     }
                 },
+                "sessionId": {
+                    "type": "integer"
+                },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Problem": {
+            "type": "object",
+            "properties": {
+                "acceptanceRate": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "difficulty": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isPublished": {
+                    "type": "boolean"
+                },
+                "memoryLimitKb": {
+                    "type": "integer"
+                },
+                "problemMd": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "testcases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Testcase"
+                    }
+                },
+                "timeLimitMs": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -916,6 +1093,9 @@ const docTemplate = `{
                     }
                 },
                 "orderIndex": {
+                    "type": "integer"
+                },
+                "subjectId": {
                     "type": "integer"
                 },
                 "title": {
@@ -938,6 +1118,9 @@ const docTemplate = `{
                 "orderIndex": {
                     "type": "integer"
                 },
+                "subjectId": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -952,8 +1135,14 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "iconName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "language": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -965,6 +1154,9 @@ const docTemplate = `{
                     }
                 },
                 "slug": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -978,13 +1170,74 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "iconName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "language": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SubjectSession": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lessons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Lesson"
+                    }
+                },
+                "orderIndex": {
+                    "type": "integer"
+                },
+                "subjectId": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Testcase": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "expectedOutput": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputData": {
+                    "type": "string"
+                },
+                "isHidden": {
+                    "type": "boolean"
+                },
+                "problemId": {
+                    "type": "integer"
+                },
+                "role": {
                     "type": "string"
                 }
             }

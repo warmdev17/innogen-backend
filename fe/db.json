@@ -1,0 +1,337 @@
+{
+  "subjects": [
+    {
+      "id": "1",
+      "title": "Lập trình C",
+      "slug": "c-programming",
+      "color": "#3b82f6",
+      "language": "c",
+      "iconName": "Code"
+    },
+    {
+      "id": "2",
+      "title": "Lập trình Java",
+      "slug": "java-programming",
+      "color": "#ef4444",
+      "language": "java",
+      "iconName": "Layers"
+    },
+    {
+      "id": "3",
+      "title": "Cấu trúc dữ liệu & Giải thuật",
+      "slug": "dsa",
+      "color": "#10b981",
+      "language": "cpp",
+      "iconName": "BookOpen"
+    },
+    {
+      "id": "4",
+      "title": "Lập trình Python",
+      "slug": "python",
+      "color": "#f59e0b",
+      "language": "python",
+      "iconName": "FileCode"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "1",
+      "subjectId": 4,
+      "title": "Python: Cơ bản",
+      "orderIndex": 1
+    },
+    {
+      "id": "2",
+      "subjectId": 4,
+      "title": "Python: Nâng cao",
+      "orderIndex": 2
+    },
+    {
+      "id": "3",
+      "subjectId": 1,
+      "title": "C: Nhập môn",
+      "orderIndex": 1
+    },
+    {
+      "id": "4",
+      "subjectId": 2,
+      "title": "Java: OOP",
+      "orderIndex": 1
+    },
+    {
+      "id": "5",
+      "subjectId": 3,
+      "title": "DSA: Thuật toán",
+      "orderIndex": 1
+    }
+  ],
+  "lessons": [
+    {
+      "id": "1",
+      "sessionId": 1,
+      "title": "Lesson 1: Biến & Kiểu dữ liệu",
+      "contentMd": "Nội dung bài học về biến và kiểu dữ liệu trong Python.",
+      "orderIndex": 1
+    },
+    {
+      "id": "2",
+      "sessionId": 2,
+      "title": "Lesson 1: Cấu trúc điều kiện",
+      "contentMd": "Nội dung bài học về cấu trúc điều kiện trong Python.",
+      "orderIndex": 1
+    },
+    {
+      "id": "3",
+      "sessionId": 3,
+      "title": "Lesson 1: Hello World",
+      "contentMd": "Tìm hiểu cách viết chương trình C đầu tiên.",
+      "orderIndex": 1
+    },
+    {
+      "id": "4",
+      "sessionId": 4,
+      "title": "Lesson 1: Class & Object",
+      "contentMd": "Khái niệm Lớp và Đối tượng trong Java.",
+      "orderIndex": 1
+    },
+    {
+      "id": "5",
+      "sessionId": 5,
+      "title": "Lesson 1: Sorting",
+      "contentMd": "Các thuật toán sắp xếp cơ bản.",
+      "orderIndex": 1
+    }
+  ],
+  "problems": [
+    {
+      "id": "1",
+      "lessonId": 1,
+      "slug": "hai-so-tong",
+      "acceptanceRate": 85.5,
+      "title": "1. Hai số tổng (Two Sum)",
+      "difficulty": "Easy",
+      "problemMd": "Viết hàm sum nhận vào hai số nguyên a và b. Hãy tính và trả về tổng của hai số đó.\n\n**Ví dụ**:\n- **Input**: a = 3, b = 6\n- **Output**: 9\n- **Giải thích**: Vì a + b = 9, chúng ta trả về 9.\n\n**Ràng buộc**:\n- `a, b <= 10^4`",
+      "template": "# Viết code Python ở đây\n",
+      "timeLimitMs": 2000,
+      "memoryLimitMb": 128,
+      "createdBy": 1
+    },
+    {
+      "id": "2",
+      "lessonId": 1,
+      "slug": "dao-nguoc-so",
+      "acceptanceRate": 60.2,
+      "title": "2. Đảo ngược số",
+      "difficulty": "Easy",
+      "problemMd": "Cho một số nguyên có dấu 32-bit `x`, hãy trả về `x` với các chữ số được đảo ngược.\n\n**Ví dụ**:\n- **Input**: x = 123\n- **Output**: 321\n\n**Ràng buộc**:\n- `-2^31 <= x <= 2^31 - 1`",
+      "template": "# Viết code Python ở đây\n",
+      "timeLimitMs": 2000,
+      "memoryLimitMb": 128,
+      "createdBy": 1
+    },
+    {
+      "id": "3",
+      "lessonId": 2,
+      "slug": "kiem-tra-so-nguyen-to",
+      "acceptanceRate": 78,
+      "title": "3. Kiểm tra số nguyên tố",
+      "difficulty": "Easy",
+      "problemMd": "Cho một số nguyên dương `n`. Hãy kiểm tra xem `n` có phải là số nguyên tố hay không.\n\n**Ví dụ**:\n- **Input**: n = 7\n- **Output**: true\n\n**Ràng buộc**:\n- `1 <= n <= 10^9`",
+      "template": "# Viết code Python ở đây\n",
+      "timeLimitMs": 2000,
+      "memoryLimitMb": 128,
+      "createdBy": 1
+    },
+    {
+      "id": "4",
+      "lessonId": 3,
+      "slug": "in-chuoi-hello-world",
+      "acceptanceRate": 95,
+      "title": "Nhập môn C: Hello World",
+      "difficulty": "Easy",
+      "problemMd": "Viết chương trình in ra dòng chữ \"Hello World\".\n\n**Ví dụ**:\n- **Input**: None\n- **Output**: \"Hello World\"",
+      "template": "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World\");\n    return 0;\n}",
+      "timeLimitMs": 1000,
+      "memoryLimitMb": 64,
+      "createdBy": 1
+    },
+    {
+      "id": "5",
+      "lessonId": 4,
+      "slug": "tao-lop-student",
+      "acceptanceRate": 70,
+      "title": "Java OOP: Tạo lớp Student",
+      "difficulty": "Medium",
+      "problemMd": "Định nghĩa một lớp Student với các thuộc tính name và age.\n\n**Ví dụ**:\n- **Input**: Student s = new Student(\"An\", 20)\n- **Output**: s.name is \"An\"",
+      "template": "public class Student {\n    // Bổ sung code\n}",
+      "timeLimitMs": 2000,
+      "memoryLimitMb": 256,
+      "createdBy": 1
+    },
+    {
+      "id": "6",
+      "lessonId": 5,
+      "slug": "bubble-sort",
+      "acceptanceRate": 65.5,
+      "title": "Thuật toán: Bubble Sort",
+      "difficulty": "Medium",
+      "problemMd": "Sắp xếp mảng sử dụng thuật toán nổi bọt (Bubble Sort).\n\n**Ví dụ**:\n- **Input**: arr = [5,1,4,2,8]\n- **Output**: [1,2,4,5,8]",
+      "template": "void bubbleSort(int arr[], int n) {\n    // Code here\n}",
+      "timeLimitMs": 2000,
+      "memoryLimitMb": 128,
+      "createdBy": 1
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "1",
+      "problemId": 1,
+      "inputData": "3\n6",
+      "expectedOutput": "9",
+      "isHidden": false,
+      "role": "sample"
+    },
+    {
+      "id": "2",
+      "problemId": 1,
+      "inputData": "10\n-5",
+      "expectedOutput": "5",
+      "isHidden": true,
+      "role": "hidden"
+    },
+    {
+      "id": "3",
+      "problemId": 2,
+      "inputData": "123",
+      "expectedOutput": "321",
+      "isHidden": false,
+      "role": "sample"
+    },
+    {
+      "id": "4",
+      "problemId": 2,
+      "inputData": "-123",
+      "expectedOutput": "-321",
+      "isHidden": true,
+      "role": "hidden"
+    },
+    {
+      "id": "5",
+      "problemId": 3,
+      "inputData": "7",
+      "expectedOutput": "true",
+      "isHidden": false,
+      "role": "sample"
+    },
+    {
+      "id": "6",
+      "problemId": 3,
+      "inputData": "10",
+      "expectedOutput": "false",
+      "isHidden": true,
+      "role": "hidden"
+    },
+    {
+      "id": "7",
+      "problemId": 4,
+      "inputData": "",
+      "expectedOutput": "Hello World",
+      "isHidden": false,
+      "role": "sample"
+    }
+  ],
+  "submissions": [
+    {
+      "id": "f7f2105e-96e1-47b3-a94d-6de59705e1ed",
+      "userId": "1",
+      "problemId": "4",
+      "language": "c",
+      "code": "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World\");\n    return 0;\n}",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "d0a931d1-5f40-4ef9-a0f3-fd5e6ba41d5f",
+      "userId": "1",
+      "problemId": "1",
+      "language": "python",
+      "code": "# Viết code Python ở đây\ndef sum(a, b):\n    return a + b;",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "cfed6e68-4fa6-4c4f-8a5e-bbd049376a89",
+      "userId": "1",
+      "problemId": "5",
+      "language": "java",
+      "code": "public class Student {\n    // Bổ sung code\n}",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "02b45529-1e40-4db7-89e5-2355ab0ca4ab",
+      "userId": "1",
+      "problemId": "4",
+      "language": "c",
+      "code": "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World\");\n    return 0;\n}",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "d62ccebe-f4a2-481f-ac5e-df49d1d5d34d",
+      "userId": "1",
+      "problemId": "1",
+      "language": "python",
+      "code": "# Viết code Python ở đây\n",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "021b68d3-5ffc-4c25-8773-9c3b44fbcef1",
+      "userId": "1",
+      "problemId": "1",
+      "language": "python",
+      "code": "# Viết code Python ở đây\n",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    },
+    {
+      "id": "83107ab1-ba88-443f-ba39-c00a90104f80",
+      "userId": 1,
+      "problemId": "2",
+      "language": "python",
+      "code": "# Viết code Python ở đây\n",
+      "status": "Accepted",
+      "runtimeMs": 45,
+      "memoryKb": 1024,
+      "errorMessage": null,
+      "passCount": 5,
+      "totalTestcases": 5
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

@@ -35,9 +35,12 @@ func GetSubjects(c *gin.Context) {
 		subjectList[i] = models.SubjectListItem{
 			ID:          s.ID,
 			Name:        s.Name,
+			Title:       s.Title,
 			Slug:        s.Slug,
 			Description: s.Description,
 			Color:       s.Color,
+			Language:    s.Language,
+			IconName:    s.IconName,
 		}
 	}
 
@@ -84,12 +87,15 @@ func GetSubject(c *gin.Context) {
 		for j, lesson := range session.Lessons {
 			lessons[j] = models.LessonItem{
 				ID:         lesson.ID,
+				SessionID:  lesson.SubjectSessionID,
 				Title:      lesson.Title,
+				ContentMd:  lesson.ContentMd,
 				OrderIndex: lesson.OrderIndex,
 			}
 		}
 		sessions[i] = models.SessionItem{
 			ID:         session.ID,
+			SubjectID:  session.SubjectID,
 			Title:      session.Title,
 			OrderIndex: session.OrderIndex,
 			Lessons:    lessons,
@@ -99,9 +105,12 @@ func GetSubject(c *gin.Context) {
 	c.JSON(http.StatusOK, models.SubjectDetailResponse{
 		ID:          subject.ID,
 		Name:        subject.Name,
+		Title:       subject.Title,
 		Slug:        subject.Slug,
 		Description: subject.Description,
 		Color:       subject.Color,
+		Language:    subject.Language,
+		IconName:    subject.IconName,
 		Sessions:    sessions,
 	})
 }

@@ -26,7 +26,9 @@ func RegisterRoutes(r *gin.Engine) {
 		// Course Structure
 		api.GET("/subjects", controllers.GetSubjects)
 		api.GET("/subjects/:slug", controllers.GetSubject)
+		api.GET("/sessions", controllers.GetSessions)
 		api.GET("/sessions/:id", controllers.GetSession)
+		api.GET("/lessons", controllers.GetLessons)
 		api.GET("/lessons/:id", controllers.GetLesson)
 
 		// Protected routes
